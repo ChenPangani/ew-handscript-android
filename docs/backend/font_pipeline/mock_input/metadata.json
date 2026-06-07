@@ -1,0 +1,96 @@
+{
+  "glyphs": [
+    {
+      "unicode": "U+4E00",
+      "char": "一",
+      "wuxing": "水",
+      "version": "v1.0",
+      "filename": "U+4E00_一.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+4E8C",
+      "char": "二",
+      "wuxing": "火",
+      "version": "v1.0",
+      "filename": "U+4E8C_二.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+4E09",
+      "char": "三",
+      "wuxing": "木",
+      "version": "v1.0",
+      "filename": "U+4E09_三.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+56DB",
+      "char": "四",
+      "wuxing": "金",
+      "version": "v1.0",
+      "filename": "U+56DB_四.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+4E94",
+      "char": "五",
+      "wuxing": "土",
+      "version": "v1.0",
+      "filename": "U+4E94_五.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+516D",
+      "char": "六",
+      "wuxing": "水",
+      "version": "v1.0",
+      "filename": "U+516D_六.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+4E03",
+      "char": "七",
+      "wuxing": "火",
+      "version": "v1.0",
+      "filename": "U+4E03_七.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+516B",
+      "char": "八",
+      "wuxing": "木",
+      "version": "v1.0",
+      "filename": "U+516B_八.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+4E5D",
+      "char": "九",
+      "wuxing": "金",
+      "version": "v1.0",
+      "filename": "U+4E5D_九.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "unicode": "U+5341",
+      "char": "十",
+      "wuxing": "土",
+      "version": "v1.0",
+      "filename": "U+5341_十.png",
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "version": "1.0.0",
+  "generated_at": "2026-06-07"
+}

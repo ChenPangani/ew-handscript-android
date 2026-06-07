@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">蚯蚓手书修仙传</string>
+    <string name="app_slogan">你的字迹，你的风格</string>
+
+    <!-- 首页 -->
+    <string name="home_import_scan">导入历史手写稿</string>
+    <string name="home_create_blank">新建空白字帖</string>
+    <string name="home_my_library">我的字库</string>
+    <string name="home_create_document">创作工作台</string>
+    <string name="home_recent_documents">最近文档</string>
+
+    <!-- 扫描模块 -->
+    <string name="scan_title">扫描手写稿</string>
+    <string name="scan_take_photo">拍照</string>
+    <string name="scan_from_gallery">从相册选择</string>
+    <string name="scan_processing">正在处理…</string>
+    <string name="scan_auto_crop">自动矫正</string>
+    <string name="scan_manual_adjust">手动调整</string>
+    <string name="scan_confirm">确认导入</string>
+
+    <!-- 校对模块 -->
+    <string name="verify_title">字库校对</string>
+    <string name="verify_swipe_hint">上滑确认 · 下滑修正</string>
+    <string name="verify_batch_select">批量选择</string>
+    <string name="verify_apply_to_all">应用到所有相同字形</string>
+    <string name="verify_original">原图</string>
+    <string name="verify_progress">%1$d / %2$d</string>
+    <string name="verify_confirm_all">一键确认全部</string>
+
+    <!-- 字库管理 -->
+    <string name="library_title">我的字库</string>
+    <string name="library_basic">基础版</string>
+    <string name="library_complete">完整版</string>
+    <string name="library_glyph_count">已收录 %1$d 字</string>
+    <string name="library_generate_font">生成我的专属字体</string>
+    <string name="library_tag_cursive">连笔</string>
+    <string name="library_tag_running">行书</string>
+    <string name="library_tag_regular">楷书</string>
+
+    <!-- 创作工作台 -->
+    <string name="workspace_title">创作工作台</string>
+    <string name="workspace_input_text">输入文本</string>
+    <string name="workspace_import_doc">导入文档</string>
+    <string name="workspace_voice_input">语音输入</string>
+    <string name="workspace_preview">预览效果</string>
+    <string name="workspace_template">信纸模板</string>
+    <string name="workspace_ink_color">墨水颜色</string>
+    <string name="workspace_font_size">字号</string>
+    <string name="workspace_line_spacing">行间距</string>
+    <string name="workspace_letter_spacing">字间距</string>
+    <string name="workspace_margin">页边距</string>
+
+    <!-- 导出模块 -->
+    <string name="export_title">导出与分享</string>
+    <string name="export_png">导出 PNG</string>
+    <string name="export_pdf">导出 PDF</string>
+    <string name="export_share">分享</string>
+    <string name="export_scan_filter">扫描滤镜</string>
+    <string name="export_generating">正在生成…</string>
+
+    <!-- 通用 -->
+    <string name="common_cancel">取消</string>
+    <string name="common_confirm">确认</string>
+    <string name="common_save">保存</string>
+    <string name="common_delete">删除</string>
+    <string name="common_edit">编辑</string>
+    <string name="common_done">完成</string>
+    <string name="common_retry">重试</string>
+    <string name="common_back">返回</string>
+    <string name="common_next">下一步</string>
+    <string name="common_loading">加载中…</string>
+    <string name="common_error">出错了</string>
+    <string name="common_empty">暂无内容</string>
+
+    <!-- 通知 -->
+    <string name="notification_font_generation_title">字体生成中</string>
+    <string name="notification_font_generation_content">正在云端处理您的专属字体…</string>
+    <string name="notification_font_complete_title">字体生成完成</string>
+    <string name="notification_font_complete_content">您的专属字体已准备就绪，点击下载</string>
+
+    <!-- 权限 -->
+    <string name="permission_camera_rationale">需要摄像头权限来扫描手写稿</string>
+    <string name="permission_storage_rationale">需要存储权限来导入和导出文件</string>
+    <string name="permission_microphone_rationale">需要麦克风权限来进行语音输入</string>
+</resources>

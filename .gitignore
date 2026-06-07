@@ -1,0 +1,16 @@
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# 模型大文件（可选，如果GitHub限制100MB）
+*.pth
+*.pt
+
+# 本地输出（可选，TTF和测试图片可重新生成）
+docs/backend/font_pipeline/output/
+docs/algorithm/ehs_algorithm/output/
+
+# macOS
+.DS_Store
