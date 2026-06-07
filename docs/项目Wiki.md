@@ -56,6 +56,7 @@ Layer4: 人机协同校对（消消乐交互）
 - 字体生成流水线：本地Python脚本（Potrace+fontTools），不依赖云端
 - Agent-B输入：已确认单字PNG（透明背景）+ 元数据JSON
 - Agent-B输出：TTF字体文件 + 字体元数据JSON
+- TFLite模型大小：wuxing_feature_extractor.tflite ≈ 986KB, print_filter.tflite ≈ 650KB，合计≈1.6MB（INT8量化估算，实际可能更小）
 
 ## 8. 待决策
 - 回滚阈值：500字？1
