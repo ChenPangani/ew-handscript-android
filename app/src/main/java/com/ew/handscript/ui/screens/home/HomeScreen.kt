@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.ew.handscript.ui.Screen
+import com.ew.handscript.ui.navigation.BottomTab
 import com.ew.handscript.model.LibraryLevel
 import kotlinx.coroutines.flow.collectLatest
 
@@ -73,7 +73,7 @@ fun HomeScreen(
             RecentDocumentsSection(
                 documents = uiState.recentDocuments,
                 onDocumentClick = { docId ->
-                    navController.navigate(Screen.Output.route)
+                    navController.navigate(BottomTab.Output.route)
                 }
             )
         }
@@ -114,7 +114,7 @@ private fun HomeTopBar(libraryLevel: LibraryLevel) {
             }
             // 设置入口
             IconButton(
-                onClick = { navController.navigate(Screen.Settings.route) }
+                onClick = { navController.navigate(BottomTab.Settings.route) }
             ) {
                 Icon(
                     imageVector = Icons.Filled.Settings,
@@ -216,7 +216,7 @@ private fun MainActionButtons(navController: NavHostController) {
     ) {
         // 主要入口：导入手写稿
         Button(
-            onClick = { navController.navigate(Screen.Scan.route) },
+            onClick = { navController.navigate(BottomTab.Scan.route) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -268,12 +268,12 @@ private fun QuickAccessGrid(navController: NavHostController) {
         QuickAccessItem(
             title = "我的字库",
             icon = Icons.Filled.FontDownload,
-            route = Screen.Library.route
+            route = BottomTab.Library.route
         ),
         QuickAccessItem(
             title = "万象法相",
             icon = Icons.Filled.Image,
-            route = Screen.Output.route
+            route = BottomTab.Output.route
         )
     )
 
