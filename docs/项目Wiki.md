@@ -38,7 +38,7 @@ Layer4: 人机协同校对（消消乐交互）
 - 英文名：Eruca HandScript: Cultivation Saga
 - 简称：EHS
 - GitHub: ew-handscript-android
-- 包名：com.eruca.handscript
+- 包名：com.ew.handscript
 - MVP排除：联网宗门/区块链/天道功德榜
 - 印刷体自动拒绝
 - D01: 灵石（已定）
