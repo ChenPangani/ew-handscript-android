@@ -11,6 +11,8 @@ import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import timber.log.Timber
 import kotlin.math.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * 扫描矫正引擎 (ScanCorrectionEngine)
@@ -28,7 +30,8 @@ import kotlin.math.*
  *
  * @author HandCraft Font Team
  */
-class ScanCorrectionEngine {
+@Singleton
+class ScanCorrectionEngine @Inject constructor() {
 
     companion object {
         // 文档检测常量

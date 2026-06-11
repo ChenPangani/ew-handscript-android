@@ -1,587 +1,308 @@
+/**
+ * 文件名: ApiContract.kt
+ * 负责Agent: Agent-D (Android开发)
+ * 所属模块: network
+ * 最后修改: 2026-06-09
+ * 版本: 0.4.2-wiki
+ *
+ * 功能说明: 前后端 API 数据契约（无序列化注解版本，避免 kapt 冲突）
+ * 关键约束: 华为Mate30兼容，包体积<50MB
+ */
+
 package com.ew.handscript.network
 
 import com.ew.handscript.model.GlyphModel
-import com.ew.handscript.model.LibraryLevel
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
-/**
- * ============================================
- * HandCraft Font - 前后端 API 接口契约
- * ============================================
- *
- * 基础URL配置（已在build.gradle中定义）：
- * - 开发环境: https://dev-api.handcraft.font/v1/
- * - 生产环境: https://api.handcraft.font/v1/
- *
- * 认证方式: Bearer Token (JWT)
- * 请求格式: JSON (application/json)
- * 响应格式: JSON (application/json)
- * 编码: UTF-8
- */
 
 // ============================================
-// 1. 字形上传相关接口
+// 1. 字形上传相关
 // ============================================
 
-/**
- * 请求：批量上传字形数据
- * POST /api/v1/glyphs/batch-upload
- */
-@Serializable
- data class GlyphBatchUploadRequest(
-    @SerialName("batch_id")
-    val batchId: String,  // 客户端生成的UUID
-
-    @SerialName("glyphs")
+data class GlyphBatchUploadRequest(
+    val batchId: String,
     val glyphs: List<GlyphUploadItem>,
-
-    @SerialName("upload_metadata")
     val uploadMetadata: UploadMetadata
 )
 
-@Serializable
- data class GlyphUploadItem(
-    @SerialName("unicode")
+data class GlyphUploadItem(
     val unicode: String,
-
-    @SerialName("character")
     val character: String,
-
-    @SerialName("glyph_version")
-    val glyphVersion: Int,
-
-    @SerialName("image_base64")
-    val imageBase64: String,  // PNG格式，Base64编码
-
-    @SerialName("width")
+    val glyphVersion: Int = 1,
+    val imageBase64: String,
     val width: Int,
-
-    @SerialName("height")
     val height: Int,
-
-    @SerialName("baseline")
     val baseline: Int,
-
-    @SerialName("advance_width")
     val advanceWidth: Int,
-
-    @SerialName("tags")
     val tags: List<String> = emptyList(),
-
-    @SerialName("ocr_text")
     val ocrText: String? = null,
-
-    @SerialName("corrected_text")
     val correctedText: String? = null
 )
 
-@Serializable
- data class UploadMetadata(
-    @SerialName("total_count")
+data class UploadMetadata(
     val totalCount: Int,
-
-    @SerialName("source_type")
-    val sourceType: String,  // "scan", "manual_create"
-
-    @SerialName("device_id")
+    val sourceType: String = "scan",
     val deviceId: String,
-
-    @SerialName("client_version")
     val clientVersion: String
 )
 
-/**
- * 响应：批量上传结果
- */
-@Serializable
- data class GlyphBatchUploadResponse(
-    @SerialName("batch_id")
+data class GlyphBatchUploadResponse(
     val batchId: String,
-
-    @SerialName("uploaded_count")
     val uploadedCount: Int,
-
-    @SerialName("failed_items")
-    val failedItems: List<FailedUploadItem>,
-
-    @SerialName("storage_urls")
-    val storageUrls: Map<String, String>,  // glyphId -> cloud URL
-
-    @SerialName("status")
-    val status: String  // "completed", "partial_failed"
+    val failedItems: List<FailedUploadItem> = emptyList(),
+    val storageUrls: Map<String, String> = emptyMap(),
+    val status: String = "completed"
 )
 
-@Serializable
- data class FailedUploadItem(
-    @SerialName("glyph_id")
+data class FailedUploadItem(
     val glyphId: String,
-
-    @SerialName("error_code")
     val errorCode: String,
-
-    @SerialName("error_message")
     val errorMessage: String
 )
 
 // ============================================
-// 2. 字体生成相关接口
+// 2. 字体生成相关
 // ============================================
 
-/**
- * 请求：提交字体生成任务
- * POST /api/v1/fonts/generate
- */
-@Serializable
- data class FontGenerationRequest(
-    @SerialName("font_name")
-    val fontName: String,  // 用户自定义字体名称
-
-    @SerialName("glyph_set_id")
-    val glyphSetId: String,  // 字形集合ID
-
-    @SerialName("font_options")
-    val fontOptions: FontGenerationOptions
+data class FontGenerationRequest(
+    val fontName: String,
+    val glyphSetId: String,
+    val fontOptions: FontGenerationOptions = FontGenerationOptions()
 )
 
-@Serializable
- data class FontGenerationOptions(
-    @SerialName("font_family_name")
-    val fontFamilyName: String,
-
-    @SerialName("include_fallback_glyphs")
+data class FontGenerationOptions(
+    val fontFamilyName: String = "",
     val includeFallbackGlyphs: Boolean = true,
-
-    @SerialName("hinting_level")
-    val hintingLevel: String = "light",  // "none", "light", "full"
-
-    @SerialName("optimize_for_screen")
+    val hintingLevel: String = "light",
     val optimizeForScreen: Boolean = true,
-
-    @SerialName("enable_ligatures")
     val enableLigatures: Boolean = false,
-
-    @SerialName("metadata")
     val metadata: FontMetadata = FontMetadata()
 )
 
-@Serializable
- data class FontMetadata(
-    @SerialName("designer")
+data class FontMetadata(
     val designer: String = "",
-
-    @SerialName("description")
-    val description: String = "Personal handwriting font generated by HandCraft Font",
-
-    @SerialName("copyright")
+    val description: String = "Personal handwriting font",
     val copyright: String = "",
-
-    @SerialName("version")
     val version: String = "1.0"
 )
 
-/**
- * 响应：字体生成任务提交结果
- */
-@Serializable
- data class FontGenerationResponse(
-    @SerialName("task_id")
+data class FontGenerationResponse(
     val taskId: String,
-
-    @SerialName("status")
-    val status: TaskStatus,  // "queued", "processing", "completed", "failed"
-
-    @SerialName("estimated_seconds")
-    val estimatedSeconds: Int,  // 预计处理时间
-
-    @SerialName("position_in_queue")
-    val positionInQueue: Int
+    val status: TaskStatus = TaskStatus.QUEUED,
+    val estimatedSeconds: Int = 0,
+    val positionInQueue: Int = 0
 )
 
-@Serializable
- enum class TaskStatus {
-    @SerialName("queued") QUEUED,
-    @SerialName("processing") PROCESSING,
-    @SerialName("completed") COMPLETED,
-    @SerialName("failed") FAILED,
-    @SerialName("cancelled") CANCELLED
+enum class TaskStatus {
+    QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED
 }
 
-/**
- * 请求：查询字体生成任务状态
- * GET /api/v1/fonts/tasks/{task_id}
- */
-@Serializable
- data class FontTaskStatusResponse(
-    @SerialName("task_id")
+data class FontTaskStatusResponse(
     val taskId: String,
-
-    @SerialName("status")
     val status: TaskStatus,
-
-    @SerialName("progress_percent")
-    val progressPercent: Int,  // 0-100
-
-    @SerialName("current_stage")
-    val currentStage: String,  // "vectorizing", "compiling", "packaging"
-
-    @SerialName("result")
+    val progressPercent: Int = 0,
+    val currentStage: String = "",
     val result: FontTaskResult? = null,
-
-    @SerialName("error")
     val error: TaskError? = null
 )
 
-@Serializable
- data class FontTaskResult(
-    @SerialName("download_url")
-    val downloadUrl: String,  // .ttf 文件下载链接
-
-    @SerialName("file_size_bytes")
+data class FontTaskResult(
+    val downloadUrl: String,
     val fileSizeBytes: Long,
-
-    @SerialName("checksum_sha256")
     val checksumSha256: String,
-
-    @SerialName("font_preview_url")
-    val fontPreviewUrl: String,  // 字体预览图
-
-    @SerialName("expiry_time")
-    val expiryTime: Long  // 下载链接过期时间（Unix时间戳）
+    val fontPreviewUrl: String,
+    val expiryTime: Long
 )
 
-@Serializable
- data class TaskError(
-    @SerialName("code")
+data class TaskError(
     val code: String,
-
-    @SerialName("message")
     val message: String,
-
-    @SerialName("retryable")
-    val retryable: Boolean
+    val retryable: Boolean = true
 )
 
 // ============================================
-// 3. OCR纠错相关接口（LLM语义纠错）
+// 3. OCR纠错相关
 // ============================================
 
-/**
- * 请求：提交OCR文本进行语义纠错
- * POST /api/v1/ocr/correct
- */
-@Serializable
- data class OcrCorrectionRequest(
-    @SerialName("ocr_results")
+data class OcrCorrectionRequest(
     val ocrResults: List<OcrResultItem>,
-
-    @SerialName("context_text")
-    val contextText: String? = null,  // 前后文文本（可选）
-
-    @SerialName("document_type")
-    val documentType: String = "general"  // "general", "formal", "casual"
+    val contextText: String? = null,
+    val documentType: String = "general"
 )
 
-@Serializable
- data class OcrResultItem(
-    @SerialName("glyph_id")
+data class OcrResultItem(
     val glyphId: String,
-
-    @SerialName("unicode")
     val unicode: String,
-
-    @SerialName("ocr_text")
     val ocrText: String,
-
-    @SerialName("confidence")
     val confidence: Float,
-
-    @SerialName("bounding_box")
     val boundingBox: BoundingBox? = null
 )
 
-@Serializable
- data class BoundingBox(
-    @SerialName("x")
+data class BoundingBox(
     val x: Int,
-    @SerialName("y")
     val y: Int,
-    @SerialName("width")
     val width: Int,
-    @SerialName("height")
     val height: Int
 )
 
-/**
- * 响应：OCR纠错结果
- */
-@Serializable
- data class OcrCorrectionResponse(
-    @SerialName("corrected_results")
+data class OcrCorrectionResponse(
     val correctedResults: List<CorrectedResult>,
-
-    @SerialName("model_used")
-    val modelUsed: String,  // 使用的LLM模型
-
-    @SerialName("processing_time_ms")
-    val processingTimeMs: Int
+    val modelUsed: String = "",
+    val processingTimeMs: Int = 0
 )
 
-@Serializable
- data class CorrectedResult(
-    @SerialName("glyph_id")
+data class CorrectedResult(
     val glyphId: String,
-
-    @SerialName("original_text")
     val originalText: String,
-
-    @SerialName("corrected_text")
     val correctedText: String,
-
-    @SerialName("confidence")
     val confidence: Float,
-
-    @SerialName("is_corrected")
     val isCorrected: Boolean,
-
-    @SerialName("correction_reason")
-    val correctionReason: String? = null  // 纠错原因说明
+    val correctionReason: String? = null
 )
 
 // ============================================
-// 4. 语音识别相关接口（ASR + LLM）
+// 4. 语音识别相关
 // ============================================
 
-/**
- * 请求：语音转写
- * POST /api/v1/speech/transcribe
- * Content-Type: multipart/form-data
- *
- * 表单字段：
- * - audio_file: 音频文件（支持 wav, mp3, m4a）
- * - language: "zh-CN"
- * - enable_punctuation: true
- * - remove_filler_words: true  // 去除口语化语气词
- */
-
-/**
- * 响应：语音转写结果
- */
-@Serializable
- data class SpeechTranscriptionResponse(
-    @SerialName("transcription_id")
+data class SpeechTranscriptionResponse(
     val transcriptionId: String,
-
-    @SerialName("text")
-    val text: String,  // 转写后的书面化文本
-
-    @SerialName("original_text")
-    val originalText: String,  // 原始ASR结果（含口语化表达）
-
-    @SerialName("segments")
-    val segments: List<TranscriptionSegment>,
-
-    @SerialName("duration_seconds")
-    val durationSeconds: Float,
-
-    @SerialName("processing_time_ms")
-    val processingTimeMs: Int
+    val text: String,
+    val originalText: String,
+    val segments: List<TranscriptionSegment> = emptyList(),
+    val durationSeconds: Float = 0f,
+    val processingTimeMs: Int = 0
 )
 
-@Serializable
- data class TranscriptionSegment(
-    @SerialName("start_time")
+data class TranscriptionSegment(
     val startTime: Float,
-
-    @SerialName("end_time")
     val endTime: Float,
-
-    @SerialName("text")
     val text: String,
-
-    @SerialName("confidence")
     val confidence: Float
 )
 
 // ============================================
-// 5. 用户字库管理接口
+// 5. 用户字库管理
 // ============================================
 
-/**
- * 请求：获取用户字库统计
- * GET /api/v1/library/stats
- */
-@Serializable
- data class LibraryStatsResponse(
-    @SerialName("total_glyphs")
-    val totalGlyphs: Int,
-
-    @SerialName("unique_chars")
-    val uniqueChars: Int,  // 不重复汉字数
-
-    @SerialName("library_level")
-    val libraryLevel: LibraryLevel,
-
-    @SerialName("progress_percent")
-    val progressPercent: Float,  // 向下一等级的进度
-
-    @SerialName("coverage_stats")
-    val coverageStats: CoverageStats,
-
-    @SerialName("recent_activity")
-    val recentActivity: List<ActivityRecord>
+data class LibraryStatsResponse(
+    val totalGlyphs: Int = 0,
+    val uniqueChars: Int = 0,
+    val libraryLevel: String = "STARTER",
+    val progressPercent: Float = 0f,
+    val coverageStats: CoverageStats? = null,
+    val recentActivity: List<ActivityRecord> = emptyList()
 )
 
-@Serializable
- data class CoverageStats(
-    @SerialName("common_chars_3500")
-    val commonChars3500: Float,  // 常用3500字覆盖率
-
-    @SerialName("general_standard_8105")
-    val generalStandard8105: Float,  // 通用规范8105字覆盖率
-
-    @SerialName("total_unicode_cjk")
-    val totalUnicodeCjk: Float  // 全部CJK汉字覆盖率
+data class CoverageStats(
+    val commonChars3500: Float = 0f,
+    val generalStandard8105: Float = 0f,
+    val totalUnicodeCjk: Float = 0f
 )
 
-@Serializable
- data class ActivityRecord(
-    @SerialName("date")
-    val date: String,  // ISO 8601
-
-    @SerialName("action")
-    val action: String,  // "scan", "verify", "generate_font"
-
-    @SerialName("count")
-    val count: Int
+data class ActivityRecord(
+    val date: String,
+    val action: String,
+    val count: Int = 1
 )
 
 // ============================================
-// 6. 文档解析接口
+// 6. 文档解析
 // ============================================
 
-/**
- * 请求：解析文档（Word/PDF/TXT）
- * POST /api/v1/documents/parse
- * Content-Type: multipart/form-data
- *
- * 表单字段：
- * - document: 文档文件
- * - extract_structure: true  // 是否提取段落层级结构
- */
-
-/**
- * 响应：文档解析结果
- */
-@Serializable
- data class DocumentParseResponse(
-    @SerialName("document_id")
+data class DocumentParseResponse(
     val documentId: String,
-
-    @SerialName("file_name")
     val fileName: String,
-
-    @SerialName("text_content")
-    val textContent: String,  // 纯文本内容
-
-    @SerialName("paragraphs")
-    val paragraphs: List<ParsedParagraph>,
-
-    @SerialName("metadata")
-    val metadata: DocumentMetadata
+    val textContent: String,
+    val paragraphs: List<ParsedParagraph> = emptyList(),
+    val metadata: DocumentMetadata = DocumentMetadata()
 )
 
-@Serializable
- data class ParsedParagraph(
-    @SerialName("index")
+data class ParsedParagraph(
     val index: Int,
-
-    @SerialName("text")
     val text: String,
-
-    @SerialName("style")
-    val style: ParagraphStyle
+    val style: ParagraphStyle = ParagraphStyle()
 )
 
-@Serializable
- data class ParagraphStyle(
-    @SerialName("is_heading")
+data class ParagraphStyle(
     val isHeading: Boolean = false,
-
-    @SerialName("heading_level")
     val headingLevel: Int = 0,
-
-    @SerialName("alignment")
-    val alignment: String = "left",  // "left", "center", "right", "justify"
-
-    @SerialName("indent_level")
+    val alignment: String = "left",
     val indentLevel: Int = 0
 )
 
-@Serializable
- data class DocumentMetadata(
-    @SerialName("total_pages")
+data class DocumentMetadata(
     val totalPages: Int? = null,
-
-    @SerialName("total_words")
-    val totalWords: Int,
-
-    @SerialName("author")
+    val totalWords: Int = 0,
     val author: String? = null,
-
-    @SerialName("title")
     val title: String? = null
 )
 
 // ============================================
-// 通用响应结构
+// 7. 字库同步
 // ============================================
 
-/**
- * 标准API响应包装
- */
-@Serializable
- data class ApiResponse<T>(
-    @SerialName("code")
-    val code: Int,  // 0 = 成功
+data class LibrarySyncRequest(
+    val lastSyncTimestamp: Long? = null,
+    val localGlyphIds: List<String> = emptyList()
+)
 
-    @SerialName("message")
-    val message: String,
+data class LibrarySyncResponse(
+    val syncTimestamp: Long = 0L,
+    val addedGlyphs: List<GlyphModel> = emptyList(),
+    val updatedGlyphs: List<GlyphModel> = emptyList(),
+    val deletedGlyphIds: List<String> = emptyList(),
+    val serverStats: LibraryStatsResponse = LibraryStatsResponse()
+)
 
-    @SerialName("data")
+// ============================================
+// 8. 用户认证
+// ============================================
+
+data class LoginRequest(
+    val deviceId: String,
+    val platform: String = "android",
+    val appVersion: String = ""
+)
+
+data class LoginResponse(
+    val userId: String = "",
+    val token: String = "",
+    val refreshToken: String = "",
+    val expiresIn: Long = 0L,
+    val isNewUser: Boolean = false
+)
+
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
+data class TokenResponse(
+    val token: String = "",
+    val expiresIn: Long = 0L
+)
+
+// ============================================
+// 通用响应包装
+// ============================================
+
+data class ApiResponse<T>(
+    val code: Int = 0,
+    val message: String = "",
     val data: T? = null,
-
-    @SerialName("timestamp")
     val timestamp: Long = System.currentTimeMillis(),
-
-    @SerialName("request_id")
-    val requestId: String  // 请求追踪ID
+    val requestId: String = ""
 )
 
-/**
- * 分页响应
- */
-@Serializable
- data class PaginatedResponse<T>(
-    @SerialName("items")
-    val items: List<T>,
-
-    @SerialName("total")
-    val total: Int,
-
-    @SerialName("page")
-    val page: Int,
-
-    @SerialName("page_size")
-    val pageSize: Int,
-
-    @SerialName("has_more")
-    val hasMore: Boolean
+data class PaginatedResponse<T>(
+    val items: List<T> = emptyList(),
+    val total: Int = 0,
+    val page: Int = 1,
+    val pageSize: Int = 20,
+    val hasMore: Boolean = false
 )
 
-/**
- * 错误码定义
- */
+// ============================================
+// 错误码
+// ============================================
+
 object ErrorCodes {
     const val SUCCESS = 0
     const val UNKNOWN_ERROR = 1000

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.ew.handscript.ui.screens.realm.BreakthroughAnimation
 import com.ew.handscript.ui.theme.HandCraftFontTheme
 
 /**
@@ -108,7 +109,8 @@ fun RealmScreen_Phase3(
     // 突破动画遮罩
     if (showBreakthrough) {
         BreakthroughAnimation(
-            newRealm = realmState.currentRealm.next(),
+            fromRealm = realmState.currentRealm.displayName,
+            toRealm = realmState.currentRealm.next().displayName,
             onComplete = { showBreakthrough = false }
         )
     }

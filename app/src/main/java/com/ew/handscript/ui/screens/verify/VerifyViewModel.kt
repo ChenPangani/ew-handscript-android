@@ -1,14 +1,15 @@
 package com.ew.handscript.ui.screens.verify
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ew.handscript.data.local.GlyphDao
 import com.ew.handscript.data.repository.GlyphRepository
 import com.ew.handscript.model.GlyphModel
+import com.ew.handscript.ui.state.VerifyUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +35,7 @@ class VerifyViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                Timber.e(e, "加载待校对字形失败")
+                Log.e("VerifyVM", "加载待校对字形失败", e)
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
@@ -56,7 +57,6 @@ class VerifyViewModel @Inject constructor(
         val currentGlyph = getCurrentGlyph() ?: return
         viewModelScope.launch {
             if (applyToAll) {
-                // 应用到所有相同Unicode的未验证字形
                 val sameGlyphs = _uiState.value.glyphs.filter {
                     it.unicode == currentGlyph.unicode && !it.isVerified
                 }
@@ -117,9 +117,10 @@ class VerifyViewModel @Inject constructor(
         _uiState.update { state ->
             val nextIndex = state.currentIndex + 1
             if (nextIndex >= state.glyphs.size) {
-                state.copy(glyphs = state.glyphs.filterIndexed { index, _ ->
-                    index != state.currentIndex
-                }, currentIndex = (state.currentIndex).coerceIn(0, (state.glyphs.size - 2).coerceAtLeast(0)))
+                state.copy(
+                    glyphs = state.glyphs.filterIndexed { index, _ -> index != state.currentIndex },
+                    currentIndex = state.currentIndex.coerceIn(0, (state.glyphs.size - 2).coerceAtLeast(0))
+                )
             } else {
                 state.copy(currentIndex = nextIndex)
             }

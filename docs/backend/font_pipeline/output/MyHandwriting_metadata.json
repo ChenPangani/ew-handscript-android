@@ -1,0 +1,97 @@
+{
+  "font_name": "MyHandwriting",
+  "version": "1.0.0",
+  "generated_at": "2026-06-07T23:03:43.794921",
+  "units_per_em": 1000,
+  "glyph_count": 10,
+  "glyphs": [
+    {
+      "glyph_id": 1,
+      "unicode": "U+4E00",
+      "char": "一",
+      "wuxing": "水",
+      "version": "v1.0",
+      "source_file": "U+4E00_一.png"
+    },
+    {
+      "glyph_id": 2,
+      "unicode": "U+4E8C",
+      "char": "二",
+      "wuxing": "火",
+      "version": "v1.0",
+      "source_file": "U+4E8C_二.png"
+    },
+    {
+      "glyph_id": 3,
+      "unicode": "U+4E09",
+      "char": "三",
+      "wuxing": "木",
+      "version": "v1.0",
+      "source_file": "U+4E09_三.png"
+    },
+    {
+      "glyph_id": 4,
+      "unicode": "U+56DB",
+      "char": "四",
+      "wuxing": "金",
+      "version": "v1.0",
+      "source_file": "U+56DB_四.png"
+    },
+    {
+      "glyph_id": 5,
+      "unicode": "U+4E94",
+      "char": "五",
+      "wuxing": "土",
+      "version": "v1.0",
+      "source_file": "U+4E94_五.png"
+    },
+    {
+      "glyph_id": 6,
+      "unicode": "U+516D",
+      "char": "六",
+      "wuxing": "水",
+      "version": "v1.0",
+      "source_file": "U+516D_六.png"
+    },
+    {
+      "glyph_id": 7,
+      "unicode": "U+4E03",
+      "char": "七",
+      "wuxing": "火",
+      "version": "v1.0",
+      "source_file": "U+4E03_七.png"
+    },
+    {
+      "glyph_id": 8,
+      "unicode": "U+516B",
+      "char": "八",
+      "wuxing": "木",
+      "version": "v1.0",
+      "source_file": "U+516B_八.png"
+    },
+    {
+      "glyph_id": 9,
+      "unicode": "U+4E5D",
+      "char": "九",
+      "wuxing": "金",
+      "version": "v1.0",
+      "source_file": "U+4E5D_九.png"
+    },
+    {
+      "glyph_id": 10,
+      "unicode": "U+5341",
+      "char": "十",
+      "wuxing": "土",
+      "version": "v1.0",
+      "source_file": "U+5341_十.png"
+    }
+  ],
+  "wuxing_stats": {
+    "水": 2,
+    "火": 2,
+    "木": 2,
+    "金": 2,
+    "土": 2
+  },
+  "pipeline_version": "1.0.0"
+}

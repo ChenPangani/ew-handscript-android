@@ -11,10 +11,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ew.handscript.ui.theme.HandCraftFontTheme
@@ -305,6 +308,48 @@ private fun ExportingOverlay(onDismiss: () -> Unit) {
                 Text("请稍候，正在生成手写图片", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+}
+
+/** 手写预览画布 */
+@Composable
+private fun HandwritingPreviewCanvas(
+    textContent: String,
+    isVertical: Boolean,
+    missingChars: Set<Char>
+) {
+    val textColor = Color(0xFF1A1A2E)
+    val missingColor = Color(0xFFCC0000)
+
+    if (isVertical) {
+        // 竖排显示
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            textContent.forEach { char ->
+                Text(
+                    text = char.toString(),
+                    fontSize = 28.sp,
+                    color = if (char in missingChars) missingColor else textColor,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
+        }
+    } else {
+        // 横排显示
+        Text(
+            text = textContent,
+            fontSize = 24.sp,
+            color = textColor,
+            lineHeight = 40.sp,
+            modifier = Modifier.fillMaxSize(),
+            style = LocalTextStyle.current.copy(
+                color = textColor,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Default
+            )
+        )
     }
 }
 

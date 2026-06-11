@@ -12,6 +12,8 @@ import org.opencv.imgproc.Imgproc
 import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * 单字切割引擎 (GlyphSegmentationEngine)
@@ -28,7 +30,8 @@ import kotlin.math.min
  *
  * @author HandCraft Font Team
  */
-class GlyphSegmentationEngine {
+@Singleton
+class GlyphSegmentationEngine @Inject constructor() {
 
     companion object {
         // 连通域分析常量

@@ -1,3 +1,14 @@
+/**
+ * 文件名: FontDatabase.kt
+ * 负责Agent: Agent-D (Android开发)
+ * 所属模块: data/local
+ * 最后修改: 2026-06-09
+ * 版本: 0.4.2-wiki
+ * 
+ * 功能说明: FontDatabase功能实现
+ * 关键约束: 华为Mate30兼容，包体积<50MB
+ */
+
 package com.ew.handscript.data.local
 
 import androidx.room.Database
@@ -7,7 +18,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
- * HandCraft Font Room 数据库
+ * Room 数据库 - 蚯蚓手书修仙传
  *
  * 数据库版本历史：
  * - v1: 初始版本，包含glyphs表
@@ -20,7 +31,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ExportHistoryEntity::class
     ],
     version = 2,
-    exportSchema = true
+    exportSchema = false  // 不导出schema文件，消除编译警告
 )
 @TypeConverters(Converters::class)
 abstract class FontDatabase : RoomDatabase() {
@@ -30,7 +41,7 @@ abstract class FontDatabase : RoomDatabase() {
     abstract fun exportHistoryDao(): ExportHistoryDao
 
     companion object {
-        const val DATABASE_NAME = "handcraft_font.db"
+        const val DATABASE_NAME = "ew_handscript.db"
 
         // 数据库迁移: v1 -> v2
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -43,7 +54,7 @@ abstract class FontDatabase : RoomDatabase() {
                         corrected_image_path TEXT,
                         page_count INTEGER NOT NULL DEFAULT 1,
                         detected_baselines TEXT,
-                        processing_status TEXT NOT NULL DEFAULT 'pending',
+                        processing_status TEXT NOT NULL DEFAULT 'PENDING',
                         created_at INTEGER NOT NULL,
                         updated_at INTEGER NOT NULL
                     )

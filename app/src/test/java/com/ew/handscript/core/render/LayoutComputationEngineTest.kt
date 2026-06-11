@@ -219,7 +219,7 @@ class LayoutComputationEngineTest {
     @Test
     fun `GlyphLayoutData_computeFinalX_正确计算`() {
         val glyph = GlyphLayoutData(
-            char = "测",
+            glyphChar = "测",
             unicode = "U+6D4B",
             glyphId = "U+6D4B_01",
             glyphImagePath = "",
@@ -238,7 +238,7 @@ class LayoutComputationEngineTest {
     @Test
     fun `GlyphLayoutData_computeBounds_旋转后边界框正确`() {
         val glyph = GlyphLayoutData(
-            char = "测",
+            glyphChar = "测",
             unicode = "U+6D4B",
             glyphId = "U+6D4B_01",
             glyphImagePath = "",

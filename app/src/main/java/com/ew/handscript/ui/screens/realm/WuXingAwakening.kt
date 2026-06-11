@@ -1,8 +1,8 @@
 package com.ew.handscript.ui.screens.realm
 
 import androidx.compose.runtime.*
+import com.ew.handscript.ml.FiveElementValues
 import com.ew.handscript.ml.TFLiteHelper
-import com.ew.handscript.ml.WuXingResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -15,8 +15,8 @@ import kotlinx.coroutines.withContext
 fun rememberWuXingAwakening(
     tfLiteHelper: TFLiteHelper,
     verifiedCount: Int
-): WuXingResult? {
-    var result by remember { mutableStateOf<WuXingResult?>(null) }
+): FiveElementValues? {
+    var result by remember { mutableStateOf<FiveElementValues?>(null) }
 
     LaunchedEffect(verifiedCount) {
         if (verifiedCount >= 100 && result == null) {
@@ -24,7 +24,7 @@ fun rememberWuXingAwakening(
                 224, 224, android.graphics.Bitmap.Config.ARGB_8888
             )
             val inferResult = withContext(Dispatchers.IO) {
-                tfLiteHelper.inferWuXing(mockBitmap)
+                tfLiteHelper.awakenWuxing(mockBitmap)
             }
             mockBitmap.recycle()
             result = inferResult

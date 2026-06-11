@@ -1,0 +1,8 @@
+package com.ew.handscript.model.typeset
+
+data class FontConfig(
+    val fontSize: Float = 48f,
+    val lineSpacing: Float = 1.5f,
+    val pageWidth: Float = 2480f,
+    val pageHeight: Float = 3508f
+)

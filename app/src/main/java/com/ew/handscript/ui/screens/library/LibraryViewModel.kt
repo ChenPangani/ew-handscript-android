@@ -44,8 +44,8 @@ class LibraryViewModel @Inject constructor(
                 // 按字符分组
                 val grouped = verifiedGlyphs.map { it.toModel() }.groupBy { it.character }
 
-                _uiState.update {
-                    it.copy(
+                _uiState.update { currentState ->
+                    currentState.copy(
                         verifiedCount = count,
                         libraryLevel = level,
                         progress = progress,
@@ -60,12 +60,12 @@ class LibraryViewModel @Inject constructor(
 
     fun startFontGeneration() {
         if (_uiState.value.verifiedCount == 0) return
-        _uiState.update { it.copy(showGenerateDialog = true) }
+        _uiState.update { currentState -> currentState.copy(showGenerateDialog = true) }
     }
 
     fun submitFontGeneration(fontName: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(showGenerateDialog = false, isGenerating = true) }
+            _uiState.update { currentState -> currentState.copy(showGenerateDialog = false, isGenerating = true) }
 
             // 模拟生成进度
             val stages = listOf(
@@ -77,16 +77,16 @@ class LibraryViewModel @Inject constructor(
 
             for ((stage, progress) in stages) {
                 kotlinx.coroutines.delay(800)
-                _uiState.update { it.copy(generationStage = stage, generationProgress = progress) }
+                _uiState.update { currentState -> currentState.copy(generationStage = stage, generationProgress = progress) }
             }
 
             kotlinx.coroutines.delay(500)
-            _uiState.update { it.copy(isGenerating = false, generationProgress = 0f) }
+            _uiState.update { currentState -> currentState.copy(isGenerating = false, generationProgress = 0f) }
         }
     }
 
     fun dismissGenerateDialog() {
-        _uiState.update { it.copy(showGenerateDialog = false) }
+        _uiState.update { currentState -> currentState.copy(showGenerateDialog = false) }
     }
 
     fun addTag(glyphId: Long, tag: String) {

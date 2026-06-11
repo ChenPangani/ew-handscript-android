@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">蚯蚓手书</string>
+    <string name="scan_title">扫描</string>
+    <string name="library_title">字库</string>
+    <string name="cultivate_title">修炼</string>
+    <string name="output_title">输出</string>
+    <string name="settings_title">设置</string>
+</resources>

@@ -1,7 +1,15 @@
-package com.ew.handscript.model.typeset
+/**
+ * 文件名: GlyphLayoutData.kt
+ * 负责Agent: Agent-D (Android开发)
+ * 所属模块: model/typeset
+ * 最后修改: 2026-06-09
+ * 版本: 0.4.2-wiki
+ *
+ * 功能说明: GlyphLayoutData功能实现
+ * 关键约束: 华为Mate30兼容，包体积<50MB
+ */
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+package com.ew.handscript.model.typeset
 
 /**
  * 排版数据模型 - 逐字渲染的核心数据结构
@@ -37,54 +45,39 @@ import kotlinx.serialization.Serializable
  * @property charIndex 所在字符索引（从0开始）
  * @property paragraphIndex 所在段落索引（从0开始）
  */
-@Serializable
+
  data class GlyphLayoutData(
-    @SerialName("char")
+
     val char: String,
 
-    @SerialName("unicode")
     val unicode: String,
 
-    @SerialName("glyph_id")
     val glyphId: String,
 
-    @SerialName("glyph_image_path")
     val glyphImagePath: String,
 
-    @SerialName("offset_x")
     val offsetX: Float = 0f,
 
-    @SerialName("offset_y")
     val offsetY: Float = 0f,
 
-    @SerialName("rotation")
     val rotation: Float = 0f,
 
-    @SerialName("scale")
     val scale: Float = 1f,
 
-    @SerialName("base_x")
     val baseX: Float = 0f,
 
-    @SerialName("base_y")
     val baseY: Float = 0f,
 
-    @SerialName("glyph_width")
     val glyphWidth: Float,
 
-    @SerialName("glyph_height")
     val glyphHeight: Float,
 
-    @SerialName("is_fallback")
     val isFallback: Boolean = false,
 
-    @SerialName("line_index")
     val lineIndex: Int = 0,
 
-    @SerialName("char_index")
     val charIndex: Int = 0,
 
-    @SerialName("paragraph_index")
     val paragraphIndex: Int = 0
 ) {
     /**
@@ -175,7 +168,7 @@ import kotlinx.serialization.Serializable
 /**
  * 扰动参数数据类 - 封装单个字形的随机变换参数
  */
-@Serializable
+
  data class PerturbationParams(
     val offsetX: Float = 0f,
     val offsetY: Float = 0f,
@@ -193,19 +186,19 @@ import kotlinx.serialization.Serializable
  * @property lineHeight 行高（像素）
  * @property actualWidth 实际内容宽度（像素）
  */
-@Serializable
+
  data class LineLayoutData(
-    @SerialName("line_index")
+
     val lineIndex: Int,
-    @SerialName("paragraph_index")
+
     val paragraphIndex: Int,
-    @SerialName("base_y")
+
     val baseY: Float,
-    @SerialName("glyphs")
+
     val glyphs: List<GlyphLayoutData>,
-    @SerialName("line_height")
+
     val lineHeight: Float,
-    @SerialName("actual_width")
+
     val actualWidth: Float
 )
 
@@ -221,23 +214,23 @@ import kotlinx.serialization.Serializable
  * @property marginTop 上边距（像素）
  * @property marginBottom 下边距（像素）
  */
-@Serializable
+
  data class PageLayoutData(
-    @SerialName("page_index")
+
     val pageIndex: Int,
-    @SerialName("lines")
+
     val lines: List<LineLayoutData>,
-    @SerialName("page_width")
+
     val pageWidth: Float,
-    @SerialName("page_height")
+
     val pageHeight: Float,
-    @SerialName("margin_left")
+
     val marginLeft: Float,
-    @SerialName("margin_right")
+
     val marginRight: Float,
-    @SerialName("margin_top")
+
     val marginTop: Float,
-    @SerialName("margin_bottom")
+
     val marginBottom: Float
 )
 
@@ -249,15 +242,15 @@ import kotlinx.serialization.Serializable
  * @property totalFallbackChars 使用后备字体的字符数
  * @property fontConfig 排版配置参数
  */
-@Serializable
+
  data class DocumentLayoutResult(
-    @SerialName("pages")
+
     val pages: List<PageLayoutData>,
-    @SerialName("total_chars")
+
     val totalChars: Int,
-    @SerialName("total_fallback_chars")
+
     val totalFallbackChars: Int,
-    @SerialName("font_config")
+
     val fontConfig: FontConfig
 )
 
@@ -278,33 +271,33 @@ import kotlinx.serialization.Serializable
  * @property enableDynamicGlyph 是否启用动态字形切换（同一字使用不同写法）
  * @property enableScanFilter 是否启用扫描滤镜
  */
-@Serializable
+
  data class FontConfig(
-    @SerialName("paper_template")
+
     val paperTemplate: PaperTemplate = PaperTemplate.PLAIN_WHITE,
-    @SerialName("font_size_px")
+
     val fontSizePx: Float = 72f,
-    @SerialName("line_spacing_px")
+
     val lineSpacingPx: Float = 96f,
-    @SerialName("letter_spacing_px")
+
     val letterSpacingPx: Float = 2f,
-    @SerialName("margin_left_px")
+
     val marginLeftPx: Float = 60f,
-    @SerialName("margin_right_px")
+
     val marginRightPx: Float = 60f,
-    @SerialName("margin_top_px")
+
     val marginTopPx: Float = 80f,
-    @SerialName("margin_bottom_px")
+
     val marginBottomPx: Float = 80f,
-    @SerialName("ink_color")
+
     val inkColor: Long = 0xFF1A1A2E, // 默认深蓝黑色
-    @SerialName("ink_thickness")
+
     val inkThickness: Float = 1.0f,
-    @SerialName("enable_perturbation")
+
     val enablePerturbation: Boolean = true,
-    @SerialName("enable_dynamic_glyph")
+
     val enableDynamicGlyph: Boolean = true,
-    @SerialName("enable_scan_filter")
+
     val enableScanFilter: Boolean = false
 ) {
     companion object {

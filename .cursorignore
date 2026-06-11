@@ -1,0 +1,11 @@
+# 忽略所有归档和备份文件（这是最重要的！）
+_Archive/
+
+# 忽略算法模型大文件（除非你要调试AI模型本身）
+docs/algorithm/*.pth
+
+# 忽略IDE配置和系统缓存
+.idea/
+.gradle/
+*.iml
+.DS_Store

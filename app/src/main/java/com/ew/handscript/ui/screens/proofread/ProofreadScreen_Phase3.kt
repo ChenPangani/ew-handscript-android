@@ -128,7 +128,7 @@ fun ProofreadScreen_Phase3(
 /** 字形数据 */
 data class GlyphItem(
     val id: Int,
-    val char: String,
+    val glyphChar: String,
     val status: VerifyStatus = VerifyStatus.UNVERIFIED
 )
 
@@ -188,7 +188,7 @@ private fun GlyphCard(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             // 字符主体
             Text(
-                text = item.char,
+                text = item.glyphChar,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF1A1A2E),
@@ -274,7 +274,7 @@ private fun mockGlyphItems(): List<GlyphItem> {
     return chars.mapIndexed { i, c ->
         GlyphItem(
             id = i,
-            char = c.toString(),
+            glyphChar = c.toString(),
             status = when (i % 4) {
                 0 -> VerifyStatus.CONFIRMED
                 1 -> VerifyStatus.UNVERIFIED

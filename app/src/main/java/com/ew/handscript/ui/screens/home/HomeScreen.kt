@@ -43,7 +43,10 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            HomeTopBar(libraryLevel = uiState.libraryLevel)
+            HomeTopBar(
+                libraryLevel = uiState.libraryLevel,
+                navController = navController
+            )
         }
     ) { paddingValues ->
         Column(
@@ -82,7 +85,10 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeTopBar(libraryLevel: LibraryLevel) {
+private fun HomeTopBar(
+    libraryLevel: LibraryLevel,
+    navController: NavHostController
+) {
     TopAppBar(
         title = {
             Column {

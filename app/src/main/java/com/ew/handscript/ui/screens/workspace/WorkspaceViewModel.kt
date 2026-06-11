@@ -1,16 +1,17 @@
 package com.ew.handscript.ui.screens.workspace
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ew.handscript.core.render.HandwritingRenderEngine
 import com.ew.handscript.core.render.LayoutComputationEngine
 import com.ew.handscript.data.local.GlyphDao
 import com.ew.handscript.model.typeset.FontConfig
+import com.ew.handscript.ui.state.WorkspaceUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,11 +33,11 @@ class WorkspaceViewModel @Inject constructor(
     }
 
     fun showDocumentImport() {
-        // TODO: 打开文档导入
+        // TODO
     }
 
     fun showVoiceInput() {
-        // TODO: 打开语音输入
+        // TODO
     }
 
     fun setTextContent(text: String) {
@@ -72,20 +73,18 @@ class WorkspaceViewModel @Inject constructor(
     }
 
     fun exportAsPng() {
-        // TODO: 实现PNG导出
-        _uiState.update { it.copy(showExportDialog = false, isExporting: true) }
+        _uiState.update { it.copy(showExportDialog = false, isExporting = true) }
         viewModelScope.launch {
             kotlinx.coroutines.delay(2000)
-            _uiState.update { it.copy(isExporting: false) }
+            _uiState.update { it.copy(isExporting = false) }
         }
     }
 
     fun exportAsPdf() {
-        // TODO: 实现PDF导出
-        _uiState.update { it.copy(showExportDialog = false, isExporting: true) }
+        _uiState.update { it.copy(showExportDialog = false, isExporting = true) }
         viewModelScope.launch {
             kotlinx.coroutines.delay(2000)
-            _uiState.update { it.copy(isExporting: false) }
+            _uiState.update { it.copy(isExporting = false) }
         }
     }
 
@@ -116,7 +115,7 @@ class WorkspaceViewModel @Inject constructor(
                     _uiState.update { it.copy(previewBitmap = bitmap) }
                 }
             } catch (e: Exception) {
-                Timber.e(e, "预览生成失败")
+                Log.e("WorkspaceVM", "预览生成失败", e)
             }
         }
     }

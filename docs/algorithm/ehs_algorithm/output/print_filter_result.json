@@ -1,0 +1,56 @@
+{
+  "total_test": 20,
+  "handwritten_test": {
+    "count": 10,
+    "correct": 10,
+    "accuracy": 1.0
+  },
+  "printed_test": {
+    "count": 10,
+    "correct": 9,
+    "accuracy": 0.9
+  },
+  "overall_accuracy": 0.95,
+  "sample_results": {
+    "handwritten": [
+      {
+        "is_handwritten": true,
+        "confidence": 1.0,
+        "raw_score": 1.0,
+        "glyph_id": ""
+      },
+      {
+        "is_handwritten": true,
+        "confidence": 1.0,
+        "raw_score": 1.0,
+        "glyph_id": ""
+      },
+      {
+        "is_handwritten": true,
+        "confidence": 1.0,
+        "raw_score": 0.999999,
+        "glyph_id": ""
+      }
+    ],
+    "printed": [
+      {
+        "is_handwritten": false,
+        "confidence": 0.0352,
+        "raw_score": 0.035245,
+        "glyph_id": ""
+      },
+      {
+        "is_handwritten": false,
+        "confidence": 0.4404,
+        "raw_score": 0.440358,
+        "glyph_id": ""
+      },
+      {
+        "is_handwritten": false,
+        "confidence": 0.0021,
+        "raw_score": 0.002146,
+        "glyph_id": ""
+      }
+    ]
+  }
+}

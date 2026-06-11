@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.ew.handscript.ui.Screen
+import com.ew.handscript.ui.navigation.SubRoute
 
 /**
  * 扫描屏幕 - 手写稿导入与处理
@@ -76,7 +76,7 @@ fun ScanScreen(
                     cornerPoints = state.cornerPoints,
                     baselines = state.baselines,
                     onConfirm = {
-                        navController.navigate(Screen.Verify.createRoute(state.documentId))
+                        navController.navigate(SubRoute.Proofread.route)
                     },
                     onRetake = { viewModel.retake() },
                     onManualAdjust = { viewModel.enterManualAdjust() }

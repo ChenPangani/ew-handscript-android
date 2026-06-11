@@ -1,0 +1,146 @@
+[
+  {
+    "case": "三围达标-普通级",
+    "expected": true,
+    "actual": true,
+    "passed": true,
+    "details": {
+      "is_triggered": true,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": true,
+        "user_verified": true
+      },
+      "level": 1,
+      "glyph_id": "glyph_道_5"
+    }
+  },
+  {
+    "case": "三围达标-稀有级",
+    "expected": true,
+    "actual": true,
+    "passed": true,
+    "details": {
+      "is_triggered": true,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": true,
+        "user_verified": true
+      },
+      "level": 2,
+      "glyph_id": "glyph_道_12"
+    }
+  },
+  {
+    "case": "三围达标-传说级",
+    "expected": true,
+    "actual": true,
+    "passed": true,
+    "details": {
+      "is_triggered": true,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": true,
+        "user_verified": true
+      },
+      "level": 3,
+      "glyph_id": "glyph_道_25"
+    }
+  },
+  {
+    "case": "出场不足",
+    "expected": false,
+    "actual": false,
+    "passed": true,
+    "details": {
+      "is_triggered": false,
+      "criteria_check": {
+        "occurrence_sufficient": false,
+        "stability_sufficient": true,
+        "user_verified": true
+      },
+      "level": 0,
+      "glyph_id": "glyph_道_4"
+    }
+  },
+  {
+    "case": "稳定性不足",
+    "expected": false,
+    "actual": false,
+    "passed": true,
+    "details": {
+      "is_triggered": false,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": false,
+        "user_verified": true
+      },
+      "level": 0,
+      "glyph_id": "glyph_道_5"
+    }
+  },
+  {
+    "case": "未精修",
+    "expected": false,
+    "actual": false,
+    "passed": true,
+    "details": {
+      "is_triggered": false,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": true,
+        "user_verified": false
+      },
+      "level": 0,
+      "glyph_id": "glyph_道_5"
+    }
+  },
+  {
+    "case": "两项不足",
+    "expected": false,
+    "actual": false,
+    "passed": true,
+    "details": {
+      "is_triggered": false,
+      "criteria_check": {
+        "occurrence_sufficient": false,
+        "stability_sufficient": false,
+        "user_verified": false
+      },
+      "level": 0,
+      "glyph_id": "glyph_道_3"
+    }
+  },
+  {
+    "case": "刚好达标边界",
+    "expected": true,
+    "actual": true,
+    "passed": true,
+    "details": {
+      "is_triggered": true,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": true,
+        "user_verified": true
+      },
+      "level": 1,
+      "glyph_id": "glyph_道_5"
+    }
+  },
+  {
+    "case": "刚好不达标边界",
+    "expected": false,
+    "actual": false,
+    "passed": true,
+    "details": {
+      "is_triggered": false,
+      "criteria_check": {
+        "occurrence_sufficient": true,
+        "stability_sufficient": false,
+        "user_verified": true
+      },
+      "level": 0,
+      "glyph_id": "glyph_道_5"
+    }
+  }
+]

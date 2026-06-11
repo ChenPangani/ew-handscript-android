@@ -1,90 +1,154 @@
 package com.ew.handscript.ui.screens.realm
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
- * 突破动画组件
- *
- * 四阶段：暗化(0.8s) → 图腾(1s) → 光柱(1.2s) → 消散(0.5s)
+ * 境界突破动画
+ * 炼气→筑基→金丹等突破时的全屏特效。
  */
 @Composable
-fun BreakthroughAnimation(newRealm: CultivationRealm, onComplete: () -> Unit) {
-    var phase by remember { mutableIntStateOf(0) }
-    val alpha by animateFloatAsState(
-        targetValue = when (phase) {
-            0 -> 0.9f; 1 -> 0.7f; 2 -> 0.5f; else -> 0f
-        },
-        animationSpec = tween(800), label = "btAlpha"
-    )
-    val scale by animateFloatAsState(
-        targetValue = if (phase >= 2) 1.5f else 1f,
-        animationSpec = tween(600), label = "btScale"
-    )
+fun BreakthroughAnimation(
+    fromRealm: String,
+    toRealm: String,
+    onComplete: () -> Unit
+) {
+    var stage by remember { mutableStateOf(0) }
 
-    // 阶段自动推进
+    // 6 步时序动画
     LaunchedEffect(Unit) {
-        delay(800); phase = 1
-        delay(1000); phase = 2
-        delay(1200); phase = 3
-        delay(500); onComplete()
+        delay(300.milliseconds)  // 蓄力
+        stage = 1
+        delay(500.milliseconds)  // 灵气汇聚
+        stage = 2
+        delay(800.milliseconds)  // 瓶颈震颤
+        stage = 3
+        delay(600.milliseconds)  // 突破闪光
+        stage = 4
+        delay(1.seconds)         // 境界稳定
+        stage = 5
+        delay(500.milliseconds)  // 收束
+        onComplete()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = alpha)),
+            .background(Color.Black.copy(alpha = 0.7f)),
         contentAlignment = Alignment.Center
     ) {
-        when (phase) {
-            1 -> TotemPhase(newRealm)
-            2 -> LightPillarPhase(newRealm, scale)
+        when (stage) {
+            0 -> GatheringEffect()
+            1, 2 -> TremorEffect()
+            3 -> FlashBurstEffect()
+            4 -> RealmNameReveal(toRealm)
+            else -> Spacer(modifier = Modifier)
         }
     }
 }
 
-/** 图腾阶段：五行图标 */
 @Composable
-private fun TotemPhase(realm: CultivationRealm) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            Icons.Filled.AutoAwesome,
-            contentDescription = "图腾",
-            tint = realm.color,
-            modifier = Modifier.size(80.dp)
-        )
-        Text(
-            "${realm.element}之力汇聚",
-            color = Color.White,
-            modifier = Modifier.padding(top = 120.dp),
-            fontWeight = FontWeight.Bold
-        )
-    }
+private fun GatheringEffect() {
+    val infiniteTransition = rememberInfiniteTransition(label = "gather")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .scale(scale)
+            .background(Color(0xFFFFD700).copy(alpha = 0.3f), CircleShape)
+    )
 }
 
-/** 光柱阶段：境界名称放大+突破成功 */
 @Composable
-private fun LightPillarPhase(realm: CultivationRealm, scale: Float) {
+private fun TremorEffect() {
+    val offsetX = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        repeat(10) {
+            offsetX.animateTo(5f, tween(50))
+            offsetX.animateTo(-5f, tween(50))
+        }
+        offsetX.animateTo(0f, tween(100))
+    }
+
+    Box(
+        modifier = Modifier
+            .size(200.dp)
+            .offset(offsetX.value.dp, 0.dp)
+            .background(Color(0xFF8B0000).copy(alpha = 0.5f), CircleShape)
+    )
+}
+
+@Composable
+private fun FlashBurstEffect() {
+    val alpha by rememberInfiniteTransition(label = "flash").animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "alpha"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(alpha)
+            .background(Color.White)
+    )
+}
+
+@Composable
+private fun RealmNameReveal(realmName: String) {
+    val scale by rememberInfiniteTransition(label = "realm").animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "realmScale"
+    )
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            realm.displayName,
-            color = realm.color,
-            fontSize = 42.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale }
+            text = "突破成功",
+            fontSize = 24.sp,
+            color = Color(0xFFFFD700),
+            fontWeight = FontWeight.Bold
         )
-        Spacer(Modifier.height(8.dp))
-        Text("突破成功", color = Color(0xFFFFD700), fontSize = 18.sp)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = realmName,
+            fontSize = 48.sp,
+            color = Color(0xFFFFD700),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.scale(scale)
+        )
     }
 }

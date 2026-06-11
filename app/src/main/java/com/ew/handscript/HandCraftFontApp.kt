@@ -31,8 +31,8 @@ class HandCraftFontApp : Application(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
         }
 
-        // 2. 加载OpenCV库
-        if (!OpenCVLoader.initLocal()) {
+        // 2. 加载OpenCV库（quickbirdstudios 4.5.3 使用 initDebug，无 initLocal）
+        if (!OpenCVLoader.initDebug()) {
             Timber.e("OpenCV 初始化失败！")
         } else {
             Timber.i("OpenCV 初始化成功")

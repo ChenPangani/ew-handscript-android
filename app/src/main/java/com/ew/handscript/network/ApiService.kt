@@ -1,227 +1,158 @@
+/**
+ * 文件名: ApiService.kt
+ * 负责Agent: Agent-D (Android开发)
+ * 所属模块: network
+ * 最后修改: 2026-06-09
+ * 版本: 0.4.2-wiki
+ *
+ * 功能说明: 后端 API 服务接口（纯 Kotlin 接口，无 Retrofit 注解）
+ *          等待 Agent-Arch 添加 Retrofit 依赖后，再添加 HTTP 注解
+ * 关键约束: 华为Mate30兼容，包体积<50MB
+ */
+
 package com.ew.handscript.network
 
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Response
-import retrofit2.http.*
-
 /**
- * HandCraft Font API 服务接口
+ * API 服务接口 - 后端通信契约
  *
- * 使用Retrofit + Kotlin Serialization实现HTTP通信
- * 所有接口统一返回ApiResponse包装的标准响应
+ * 当前版本为纯 Kotlin 接口（占位实现），原因：
+ * 1. build.gradle.kts 暂未包含 Retrofit/OkHttp 依赖
+ * 2. 避免 @Serializable 与 kapt 编译冲突
+ *
+ * 当 Agent-Arch 添加 Retrofit 依赖后，将本接口升级为完整 Retrofit Service：
+ * - 添加 @POST/@GET/@Multipart 等注解
+ * - 参数添加 @Body/@Part/@Path 等注解
+ * - ApiContract.kt 可重新添加 @Serializable
  */
 interface ApiService {
 
     // ============================================
-    // 字形上传接口
+    // 1. 字形上传
     // ============================================
 
-    /**
-     * 批量上传字形数据
-     * POST /api/v1/glyphs/batch-upload
-     */
-    @POST("glyphs/batch-upload")
-    suspend fun uploadGlyphs(
-        @Body request: GlyphBatchUploadRequest
-    ): Response<ApiResponse<GlyphBatchUploadResponse>>
+    /** POST /api/v1/glyphs/batch-upload */
+    suspend fun uploadGlyphs(request: GlyphBatchUploadRequest): ApiResponse<GlyphBatchUploadResponse>
 
-    /**
-     * 上传字形图片文件（二进制）
-     * POST /api/v1/glyphs/upload-image
-     */
-    @Multipart
-    @POST("glyphs/upload-image")
+    /** POST /api/v1/glyphs/upload-image (multipart) */
     suspend fun uploadGlyphImage(
-        @Part image: MultipartBody.Part,
-        @Part("unicode") unicode: RequestBody,
-        @Part("glyph_version") glyphVersion: RequestBody
-    ): Response<ApiResponse<Map<String, String>>>  // 返回 { "url": "..." }
+        imageBytes: ByteArray,
+        unicode: String,
+        glyphVersion: Int
+    ): ApiResponse<Map<String, String>>
 
     // ============================================
-    // 字体生成接口
+    // 2. 字体生成
     // ============================================
 
-    /**
-     * 提交字体生成任务
-     * POST /api/v1/fonts/generate
-     */
-    @POST("fonts/generate")
-    suspend fun submitFontGeneration(
-        @Body request: FontGenerationRequest
-    ): Response<ApiResponse<FontGenerationResponse>>
+    /** POST /api/v1/fonts/generate */
+    suspend fun submitFontGeneration(request: FontGenerationRequest): ApiResponse<FontGenerationResponse>
 
-    /**
-     * 查询字体生成任务状态
-     * GET /api/v1/fonts/tasks/{task_id}
-     */
-    @GET("fonts/tasks/{task_id}")
-    suspend fun getFontTaskStatus(
-        @Path("task_id") taskId: String
-    ): Response<ApiResponse<FontTaskStatusResponse>>
+    /** GET /api/v1/fonts/tasks/{task_id} */
+    suspend fun getFontTaskStatus(taskId: String): ApiResponse<FontTaskStatusResponse>
 
-    /**
-     * 取消字体生成任务
-     * POST /api/v1/fonts/tasks/{task_id}/cancel
-     */
-    @POST("fonts/tasks/{task_id}/cancel")
-    suspend fun cancelFontTask(
-        @Path("task_id") taskId: String
-    ): Response<ApiResponse<Unit>>
+    /** POST /api/v1/fonts/tasks/{task_id}/cancel */
+    suspend fun cancelFontTask(taskId: String): ApiResponse<Unit>
 
     // ============================================
-    // OCR 纠错接口
+    // 3. OCR 纠错
     // ============================================
 
-    /**
-     * OCR语义纠错
-     * POST /api/v1/ocr/correct
-     */
-    @POST("ocr/correct")
-    suspend fun correctOcrResults(
-        @Body request: OcrCorrectionRequest
-    ): Response<ApiResponse<OcrCorrectionResponse>>
+    /** POST /api/v1/ocr/correct */
+    suspend fun correctOcrResults(request: OcrCorrectionRequest): ApiResponse<OcrCorrectionResponse>
 
     // ============================================
-    // 语音识别接口
+    // 4. 语音识别
     // ============================================
 
-    /**
-     * 语音转写
-     * POST /api/v1/speech/transcribe
-     */
-    @Multipart
-    @POST("speech/transcribe")
+    /** POST /api/v1/speech/transcribe (multipart) */
     suspend fun transcribeSpeech(
-        @Part audioFile: MultipartBody.Part,
-        @Part("language") language: RequestBody = MultipartBody.Part.createFormData("language", "zh-CN").body,
-        @Part("enable_punctuation") enablePunctuation: RequestBody = MultipartBody.Part.createFormData("enable_punctuation", "true").body,
-        @Part("remove_filler_words") removeFillerWords: RequestBody = MultipartBody.Part.createFormData("remove_filler_words", "true").body
-    ): Response<ApiResponse<SpeechTranscriptionResponse>>
+        audioBytes: ByteArray,
+        language: String = "zh-CN",
+        enablePunctuation: Boolean = true,
+        removeFillerWords: Boolean = true
+    ): ApiResponse<SpeechTranscriptionResponse>
 
     // ============================================
-    // 字库管理接口
+    // 5. 字库管理
     // ============================================
 
-    /**
-     * 获取字库统计
-     * GET /api/v1/library/stats
-     */
-    @GET("library/stats")
-    suspend fun getLibraryStats(): Response<ApiResponse<LibraryStatsResponse>>
+    /** GET /api/v1/library/stats */
+    suspend fun getLibraryStats(): ApiResponse<LibraryStatsResponse>
 
-    /**
-     * 同步字库数据
-     * POST /api/v1/library/sync
-     */
-    @POST("library/sync")
-    suspend fun syncLibrary(
-        @Body request: LibrarySyncRequest
-    ): Response<ApiResponse<LibrarySyncResponse>>
+    /** POST /api/v1/library/sync */
+    suspend fun syncLibrary(request: LibrarySyncRequest): ApiResponse<LibrarySyncResponse>
 
     // ============================================
-    // 文档解析接口
+    // 6. 文档解析
     // ============================================
 
-    /**
-     * 解析文档
-     * POST /api/v1/documents/parse
-     */
-    @Multipart
-    @POST("documents/parse")
+    /** POST /api/v1/documents/parse (multipart) */
     suspend fun parseDocument(
-        @Part document: MultipartBody.Part,
-        @Part("extract_structure") extractStructure: RequestBody = MultipartBody.Part.createFormData("extract_structure", "true").body
-    ): Response<ApiResponse<DocumentParseResponse>>
+        documentBytes: ByteArray,
+        extractStructure: Boolean = true
+    ): ApiResponse<DocumentParseResponse>
 
-    /**
-     * 获取解析任务状态
-     * GET /api/v1/documents/tasks/{task_id}
-     */
-    @GET("documents/tasks/{task_id}")
-    suspend fun getDocumentParseStatus(
-        @Path("task_id") taskId: String
-    ): Response<ApiResponse<DocumentParseResponse>>
+    /** GET /api/v1/documents/tasks/{task_id} */
+    suspend fun getDocumentParseStatus(taskId: String): ApiResponse<DocumentParseResponse>
 
     // ============================================
-    // 用户相关接口
+    // 7. 用户认证
     // ============================================
 
-    /**
-     * 用户登录/注册
-     * POST /api/v1/auth/login
-     */
-    @POST("auth/login")
-    suspend fun login(
-        @Body request: LoginRequest
-    ): Response<ApiResponse<LoginResponse>>
+    /** POST /api/v1/auth/login */
+    suspend fun login(request: LoginRequest): ApiResponse<LoginResponse>
 
-    /**
-     * 刷新Token
-     * POST /api/v1/auth/refresh
-     */
-    @POST("auth/refresh")
-    suspend fun refreshToken(
-        @Body request: RefreshTokenRequest
-    ): Response<ApiResponse<TokenResponse>>
+    /** POST /api/v1/auth/refresh */
+    suspend fun refreshToken(request: RefreshTokenRequest): ApiResponse<TokenResponse>
 }
 
 /**
- * 字库同步请求
+ * Mock 实现 - 无网络时用于 UI 开发测试
  */
-@kotlinx.serialization.Serializable
- data class LibrarySyncRequest(
-    val lastSyncTimestamp: Long? = null,
-    val localGlyphIds: List<String> = emptyList()
-)
+object MockApiService : ApiService {
 
-/**
- * 字库同步响应
- */
-@kotlinx.serialization.Serializable
- data class LibrarySyncResponse(
-    val syncTimestamp: Long,
-    val addedGlyphs: List<com.ew.handscript.model.GlyphModel>,
-    val updatedGlyphs: List<com.ew.handscript.model.GlyphModel>,
-    val deletedGlyphIds: List<String>,
-    val serverStats: LibraryStatsResponse
-)
+    override suspend fun uploadGlyphs(request: GlyphBatchUploadRequest) =
+        ApiResponse(data = GlyphBatchUploadResponse(batchId = request.batchId, uploadedCount = request.glyphs.size))
 
-/**
- * 登录请求
- */
-@kotlinx.serialization.Serializable
- data class LoginRequest(
-    val deviceId: String,
-    val platform: String = "android",
-    val appVersion: String
-)
+    override suspend fun uploadGlyphImage(imageBytes: ByteArray, unicode: String, glyphVersion: Int) =
+        ApiResponse(data = mapOf("url" to "https://mock.cdn.handcraft.font/$unicode.png"))
 
-/**
- * 登录响应
- */
-@kotlinx.serialization.Serializable
- data class LoginResponse(
-    val userId: String,
-    val token: String,
-    val refreshToken: String,
-    val expiresIn: Long,
-    val isNewUser: Boolean
-)
+    override suspend fun submitFontGeneration(request: FontGenerationRequest) =
+        ApiResponse(data = FontGenerationResponse(taskId = "mock-task-001"))
 
-/**
- * Token刷新请求
- */
-@kotlinx.serialization.Serializable
- data class RefreshTokenRequest(
-    val refreshToken: String
-)
+    override suspend fun getFontTaskStatus(taskId: String) =
+        ApiResponse(data = FontTaskStatusResponse(taskId = taskId, status = TaskStatus.COMPLETED, progressPercent = 100))
 
-/**
- * Token响应
- */
-@kotlinx.serialization.Serializable
- data class TokenResponse(
-    val token: String,
-    val expiresIn: Long
-)
+    override suspend fun cancelFontTask(taskId: String) = ApiResponse(data = Unit)
+
+    override suspend fun correctOcrResults(request: OcrCorrectionRequest) =
+        ApiResponse(data = OcrCorrectionResponse(correctedResults = request.ocrResults.map {
+            CorrectedResult(it.glyphId, it.ocrText, it.ocrText, it.confidence, isCorrected = false)
+        }))
+
+    override suspend fun transcribeSpeech(
+        audioBytes: ByteArray, language: String, enablePunctuation: Boolean, removeFillerWords: Boolean
+    ) = ApiResponse(data = SpeechTranscriptionResponse(
+        transcriptionId = "mock-asr-001",
+        text = "Mock 语音转写结果",
+        originalText = "Mock 语音转写结果"
+    ))
+
+    override suspend fun getLibraryStats() =
+        ApiResponse(data = LibraryStatsResponse(totalGlyphs = 128, uniqueChars = 128, libraryLevel = "BRONZE"))
+
+    override suspend fun syncLibrary(request: LibrarySyncRequest) =
+        ApiResponse(data = LibrarySyncResponse())
+
+    override suspend fun parseDocument(documentBytes: ByteArray, extractStructure: Boolean) =
+        ApiResponse(data = DocumentParseResponse(documentId = "mock-doc-001", fileName = "mock.txt", textContent = ""))
+
+    override suspend fun getDocumentParseStatus(taskId: String) =
+        ApiResponse(data = DocumentParseResponse(documentId = taskId, fileName = "", textContent = ""))
+
+    override suspend fun login(request: LoginRequest) =
+        ApiResponse(data = LoginResponse(userId = "mock-user-001", token = "mock-jwt-token"))
+
+    override suspend fun refreshToken(request: RefreshTokenRequest) =
+        ApiResponse(data = TokenResponse(token = "mock-refreshed-token"))
+}

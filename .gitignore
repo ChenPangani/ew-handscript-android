@@ -1,16 +1,81 @@
-# Python缓存
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
+# ================================================================
+# 1. Android & Gradle 构建产物 (核心清理)
+# ================================================================
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+builds/
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!**/src/main/**/gradle-wrapper.jar
+!**/src/test/**/gradle-wrapper.jar
 
-# 模型大文件（可选，如果GitHub限制100MB）
-*.pth
-*.pt
+# ================================================================
+# 2. IDE 与本地配置 (防冲突关键)
+# ================================================================
+# 直接忽略整个 .idea 目录，防止不同版本的 AS 互相覆盖配置
+.idea/
+*.iml
+*.iws
+*.ipr
+local.properties
 
-# 本地输出（可选，TTF和测试图片可重新生成）
-docs/backend/font_pipeline/output/
-docs/algorithm/ehs_algorithm/output/
+# ================================================================
+# 3. AI 编辑器与智能体专属缓存 (新增！防膨胀关键)
+# ================================================================
+# Cursor / Trae / VS Code 等基于 Web 技术的编辑器缓存
+.cursor/
+.cursorrules
+.trae/
+.vscode/
+# 其他可能的 AI 插件或对话历史存储目录
+.augment/
+.windsurf/
 
-# macOS
+# ================================================================
+# 4. 签名、日志与测试产物
+# ================================================================
+.signing/
+*.jks
+*.keystore
+*.log
+*.hprof
+*.trace
+.externalNativeBuild
+.cxx/
+
+# Lint 检查结果
+lint-results*.xml
+lint-results*.html
+
+# Crashlytics / Fabric
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# AndroidX Test
+*.gs
+*.gcno
+*.gcda
+
+# ================================================================
+# 5. 自定义备份与系统垃圾
+# ================================================================
+# 你的专属备份隔离区
+_Archive/
+*.bak
+*_bak/
+data_bak/
+
+# macOS & Windows 系统生成的隐藏文件
 .DS_Store
+Thumbs.db
+Desktop.ini
