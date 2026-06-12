@@ -79,3 +79,23 @@ data_bak/
 .DS_Store
 Thumbs.db
 Desktop.ini
+# IDE配置（个人化，不共享）
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# 训练数据与中间模型（体积大，可重建）
+algorithm/ehs_tflite/checkpoints/*.pth
+algorithm/ehs_tflite/checkpoints/*.onnx
+algorithm/ehs_tflite/checkpoints/saved_model/
+algorithm/ehs_tflite/data/rows/
+docs/algorithm/ehs_algorithm/output/*.pth
+
+# 编译产物（必须忽略）
+*/build/
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
