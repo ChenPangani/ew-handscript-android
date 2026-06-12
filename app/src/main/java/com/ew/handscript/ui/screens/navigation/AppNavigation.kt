@@ -19,6 +19,7 @@ import androidx.navigation.compose.*
 import com.ew.handscript.ui.screens.home.HomeScreen
 import com.ew.handscript.ui.screens.scan.ScanScreen
 import com.ew.handscript.ui.screens.proofread.ProofreadScreen_Phase3
+import com.ew.handscript.ui.screens.proofread.ProofreadSingleScreen
 import com.ew.handscript.ui.screens.realm.RealmScreen_Phase3
 import com.ew.handscript.ui.screens.output.OutputScreen
 import com.ew.handscript.ui.screens.settings.SettingsScreen
@@ -53,7 +54,11 @@ sealed class BottomTab(
  * 子页面路由（不显示底部导航）
  */
 sealed class SubRoute(val route: String) {
-    data object Proofread : SubRoute("proofread")
+    data object Proofread : SubRoute("proofread/{glyphId}")
+    
+    fun createRoute(glyphId: String): String {
+        return "proofread/$glyphId"
+    }
 }
 
 /**
@@ -188,9 +193,10 @@ private fun AppNavHost(
         composable(BottomTab.Settings.route) {
             SettingsScreen(navController = navController)
         }
-        // 子页面：校对（从字库Tab或扫描页跳转）
-        composable(SubRoute.Proofread.route) {
-            ProofreadScreen_Phase3(navController = navController)
+        // 子页面：校对（从九宫格字块点击跳转）
+        composable(SubRoute.Proofread.route) { backStackEntry ->
+            val glyphId = backStackEntry.arguments?.getString("glyphId") ?: ""
+            ProofreadSingleScreen(navController = navController, glyphId = glyphId)
         }
     }
 }

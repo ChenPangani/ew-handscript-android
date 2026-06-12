@@ -74,6 +74,7 @@ fun HomeScreen(
 
             // 最近文档
             RecentDocumentsSection(
+                navController = navController,
                 documents = uiState.recentDocuments,
                 onDocumentClick = { docId ->
                     navController.navigate(BottomTab.Output.route)
@@ -245,7 +246,7 @@ private fun MainActionButtons(navController: NavHostController) {
 
         // 次要入口：新建空白字帖
         OutlinedButton(
-            onClick = { /* TODO: 新建字帖 */ },
+            onClick = { navController.navigate(BottomTab.Output.route) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -343,6 +344,7 @@ private data class QuickAccessItem(
 
 @Composable
 private fun RecentDocumentsSection(
+    navController: NavHostController,
     documents: List<RecentDocument>,
     onDocumentClick: (Long) -> Unit
 ) {
@@ -359,7 +361,7 @@ private fun RecentDocumentsSection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            TextButton(onClick = { /* TODO: 查看全部 */ }) {
+            TextButton(onClick = { navController.navigate(BottomTab.Output.route) }) {
                 Text("查看全部")
             }
         }

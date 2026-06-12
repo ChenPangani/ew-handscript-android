@@ -46,6 +46,8 @@ fun ProofreadScreen_Phase3(
 ) {
     var glyphList by remember { mutableStateOf(glyphs) }
     val gridState = rememberLazyGridState()
+    var showDoubleLayerCard by remember { mutableStateOf(false) }
+    var selectedGlyph by remember { mutableStateOf<GlyphItem?>(null) }
 
     // 统计数据
     val stats = remember(glyphList) { computeStats(glyphList) }
@@ -60,8 +62,8 @@ fun ProofreadScreen_Phase3(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { /* TODO: 批量操作 */ }) {
-                        Text("全选", color = MaterialTheme.colorScheme.primary)
+                    TextButton(onClick = { navController.navigateUp() }) {
+                        Text("完成", color = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -101,11 +103,12 @@ fun ProofreadScreen_Phase3(
                     },
                     onLongPress = {
                         // 长按S2态：打开双层卡片
-                        /* TODO: 导航到双层卡片 */
+                        selectedGlyph = item
+                        showDoubleLayerCard = true
                     },
                     onDoubleTap = {
-                        // 双击S3态：进入绘制重录
-                        /* TODO: 跳转书写界面 */
+                        // 双击S3态：进入绘制重录，跳转到扫描页
+                        navController.navigate("tab_scan")
                     },
                     onSwipeUp = {
                         // 上滑消除：标记为问题
@@ -122,6 +125,30 @@ fun ProofreadScreen_Phase3(
                 )
             }
         }
+    }
+
+    // 校对详情弹窗
+    if (showDoubleLayerCard && selectedGlyph != null) {
+        AlertDialog(
+            onDismissRequest = { showDoubleLayerCard = false },
+            title = { Text(selectedGlyph!!.glyphChar) },
+            text = {
+                Column {
+                    Text("状态: ${selectedGlyph!!.status.displayName}")
+                    Text("ID: ${selectedGlyph!!.id}")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDoubleLayerCard = false }) {
+                    Text("确认")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDoubleLayerCard = false }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 }
 

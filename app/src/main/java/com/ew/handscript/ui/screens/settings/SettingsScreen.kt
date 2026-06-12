@@ -86,11 +86,17 @@ fun SettingsScreen(navController: NavHostController) {
                     showClearCacheDialog = true
                 }
                 SettingDivider()
-                ClickableItem("关于", "版本 1.0.0 · 蚯蚓手书修仙传", Icons.Outlined.Info)
+                ClickableItem("关于", "版本 1.0.0 · 蚯蚓手书修仙传", Icons.Outlined.Info) {
+                    // 显示关于对话框或跳转到关于页面
+                }
                 SettingDivider()
-                ClickableItem("用户协议", "使用条款与服务协议", Icons.Outlined.Description)
+                ClickableItem("用户协议", "使用条款与服务协议", Icons.Outlined.Description) {
+                    // 跳转到用户协议页面或WebView
+                }
                 SettingDivider()
-                ClickableItem("隐私政策", "个人信息保护政策", Icons.Outlined.Security)
+                ClickableItem("隐私政策", "个人信息保护政策", Icons.Outlined.Security) {
+                    // 跳转到隐私政策页面或WebView
+                }
             }
 
             Spacer(Modifier.weight(1f))

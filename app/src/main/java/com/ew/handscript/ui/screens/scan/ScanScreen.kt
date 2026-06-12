@@ -1,10 +1,25 @@
 package com.ew.handscript.ui.screens.scan
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.core.content.ContextCompat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.PhotoLibrary
@@ -13,18 +28,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import com.ew.handscript.ml.FiveElementValues
 import com.ew.handscript.ui.navigation.SubRoute
+import timber.log.Timber
+import java.io.File
 
-/**
- * 扫描屏幕 - 手写稿导入与处理
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
@@ -32,6 +50,142 @@ fun ScanScreen(
     viewModel: ScanViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    // 当前拍照文件（用于相机拍照）
+    var currentPhotoFile by remember { mutableStateOf<File?>(null) }
+
+    // 相机拍照启动器（必须先定义，因为 cameraPermissionLauncher 会用到）
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            try {
+                if (success) {
+                    currentPhotoFile?.let { file ->
+                        if (file.exists() && file.length() > 0) {
+                            // 直接使用拍照文件，不复制（避免目录为空的问题）
+                            // 拍照文件已经在 getExternalFilesDir(Pictures) 目录下创建
+                            viewModel.processSelectedImages(listOf(file.absolutePath))
+                        } else {
+                            Timber.e("拍照文件无效：${file?.absolutePath}")
+                            viewModel.cancelCamera()
+                        }
+                    } ?: run {
+                        Timber.e("拍照文件为空")
+                        viewModel.cancelCamera()
+                    }
+                } else {
+                    Timber.d("用户取消拍照")
+                    viewModel.cancelCamera()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "拍照回调异常")
+                viewModel.cancelCamera()
+            }
+        }
+    )
+
+    // 相机权限请求启动器
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                // 权限已授予，启动相机
+                try {
+                    currentPhotoFile = FileUtils.createImageFile(context)
+                    currentPhotoFile?.let { file ->
+                        val photoUri = FileUtils.getFileProviderUri(context, file)
+                        Timber.d("启动相机，文件路径: ${file.absolutePath}")
+                        takePictureLauncher.launch(photoUri)
+                    } ?: run {
+                        Timber.e("创建拍照文件失败")
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "启动相机异常")
+                }
+            } else {
+                Timber.e("相机权限未授予")
+            }
+        }
+    )
+
+    // 检查并请求相机权限
+    fun requestCameraPermission() {
+        val permission = android.Manifest.permission.CAMERA
+        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+            // 权限已授予，直接启动相机
+            try {
+                currentPhotoFile = FileUtils.createImageFile(context)
+                currentPhotoFile?.let { file ->
+                    val photoUri = FileUtils.getFileProviderUri(context, file)
+                    Timber.d("启动相机，文件路径: ${file.absolutePath}")
+                    takePictureLauncher.launch(photoUri)
+                } ?: run {
+                    Timber.e("创建拍照文件失败")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "启动相机异常")
+            }
+        } else {
+            // 请求权限
+            cameraPermissionLauncher.launch(permission)
+        }
+    }
+
+    // 相册选择启动器
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let { selectedUri ->
+                val realPath = FileUtils.getRealPathFromUri(context, selectedUri)
+                if (realPath != null) {
+                    viewModel.processSelectedImages(listOf(realPath))
+                } else {
+                    // 如果无法获取真实路径，尝试复制文件到私有目录
+                    val tempFile = File(context.filesDir, "temp_image_${System.currentTimeMillis()}.jpg")
+                    context.contentResolver.openInputStream(selectedUri)?.use { input ->
+                        tempFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    viewModel.processSelectedImages(listOf(tempFile.absolutePath))
+                }
+            } ?: run {
+                viewModel.cancelGallery()
+            }
+        }
+    )
+
+    // 相机启动（状态变化时触发）
+    LaunchedEffect(uiState) {
+        if (uiState is ScanUiState.Camera) {
+            try {
+                currentPhotoFile = FileUtils.createImageFile(context)
+                currentPhotoFile?.let { file ->
+                    val photoUri = FileUtils.getFileProviderUri(context, file)
+                    Timber.d("启动相机，文件路径: ${file.absolutePath}")
+                    takePictureLauncher.launch(photoUri)
+                } ?: run {
+                    Timber.e("创建拍照文件失败")
+                    viewModel.cancelCamera()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "创建拍照文件异常")
+                viewModel.cancelCamera()
+            }
+        } else if (uiState is ScanUiState.Gallery) {
+            try {
+                pickImageLauncher.launch("image/*")
+            } catch (e: Exception) {
+                Timber.e(e, "打开相册异常")
+                viewModel.cancelGallery()
+            }
+        }
+    }
+    
+    LaunchedEffect(Unit) {
+        viewModel.initializeTFLite(context)
+    }
 
     Scaffold(
         topBar = {
@@ -55,20 +209,31 @@ fun ScanScreen(
         ) {
             when (val state = uiState) {
                 is ScanUiState.Initial -> ScanInitialView(
-                    onTakePhoto = { viewModel.startCamera() },
+                    onTakePhoto = { requestCameraPermission() },
                     onPickFromGallery = { viewModel.openGallery() }
                 )
                 is ScanUiState.Camera -> CameraView(
-                    onCapture = { viewModel.captureImage(it) },
                     onClose = { viewModel.cancelCamera() }
                 )
                 is ScanUiState.Gallery -> GalleryPickerView(
-                    onImagesSelected = { viewModel.processSelectedImages(it) },
                     onClose = { viewModel.cancelGallery() }
                 )
                 is ScanUiState.Processing -> ProcessingView(
                     progress = state.progress,
                     stage = state.stage
+                )
+                is ScanUiState.Segmenting -> ProcessingView(
+                    progress = state.progress,
+                    stage = state.stage
+                )
+                is ScanUiState.GridResult -> GridResultView(
+                    navController = navController,
+                    bitmap = state.originalBitmap,
+                    glyphs = state.glyphs,
+                    totalWuxing = state.totalWuxing,
+                    isMock = state.isMock,
+                    onRetake = { viewModel.retake() },
+                    onRetry = { viewModel.retry() }
                 )
                 is ScanUiState.Preview -> PreviewView(
                     originalImage = state.originalImage,
@@ -103,7 +268,6 @@ private fun ScanInitialView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 扫描图标
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.primaryContainer,
@@ -138,7 +302,6 @@ private fun ScanInitialView(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // 拍照按钮
         Button(
             onClick = onTakePhoto,
             modifier = Modifier
@@ -153,7 +316,6 @@ private fun ScanInitialView(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 相册按钮
         OutlinedButton(
             onClick = onPickFromGallery,
             modifier = Modifier
@@ -170,25 +332,34 @@ private fun ScanInitialView(
 
 @Composable
 private fun CameraView(
-    onCapture: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    // 实际实现中这里会集成CameraX预览
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // 占位：相机预览区域
+        // 相机预览占位符（实际相机预览由系统相机应用处理）
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            Text(
-                "相机预览区域",
+            Column(
                 modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Filled.Camera,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "正在打开相机...",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         // 底部操作栏
@@ -204,7 +375,6 @@ private fun CameraView(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 关闭按钮
                 IconButton(onClick = onClose) {
                     Icon(
                         Icons.Filled.Close,
@@ -213,24 +383,8 @@ private fun CameraView(
                     )
                 }
 
-                // 拍照按钮
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(72.dp),
-                    onClick = { onCapture("") }
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Filled.Camera,
-                            contentDescription = "拍照",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-
-                // 占位
+                Spacer(modifier = Modifier.weight(1f))
+                
                 Spacer(modifier = Modifier.size(48.dp))
             }
         }
@@ -239,10 +393,8 @@ private fun CameraView(
 
 @Composable
 private fun GalleryPickerView(
-    onImagesSelected: (List<String>) -> Unit,
     onClose: () -> Unit
 ) {
-    // 实际实现中使用系统图库选择器或自定义图库
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -252,9 +404,11 @@ private fun GalleryPickerView(
         Spacer(modifier = Modifier.height(16.dp))
         Text("相册选择器", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onImagesSelected(listOf("mock_path_1")) }) {
-            Text("模拟选择图片")
-        }
+        Text(
+            "正在打开相册...",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onClose) {
             Text("取消")
@@ -317,6 +471,247 @@ private fun ProcessingView(
 }
 
 @Composable
+private fun GridResultView(
+    navController: NavHostController,
+    bitmap: android.graphics.Bitmap,
+    glyphs: List<SegmentedGlyph>,
+    totalWuxing: FiveElementValues,
+    isMock: Boolean,
+    onRetake: () -> Unit,
+    onRetry: () -> Unit
+) {
+    // 使用Box作为根容器，内部使用垂直滚动
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // 小图预览区
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(bitmap),
+                    contentDescription = "原始手写体",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            // Mock模式提示
+            if (isMock) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "⚠️ 模型未加载，显示模拟数据",
+                        modifier = Modifier.padding(8.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // 五行总览
+            Column {
+                Text(
+                    text = "五行灵根",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    WuxingBadge("木", totalWuxing.wood, Color(0xFF22C55E))
+                    WuxingBadge("火", totalWuxing.fire, Color(0xFFEF4444))
+                    WuxingBadge("土", totalWuxing.earth, Color(0xFFA16207))
+                    WuxingBadge("金", totalWuxing.metal, Color(0xFFEAB308))
+                    WuxingBadge("水", totalWuxing.water, Color(0xFF3B82F6))
+                }
+            }
+
+            // 九宫格区域
+            Column {
+                // 九宫格标题
+                Text(
+                    text = "九字真言",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // 九宫格 - 使用固定高度避免嵌套滚动冲突
+                Box(modifier = Modifier.height(280.dp)) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(glyphs.size, key = { it }) { index ->
+                            GlyphCard(
+                                glyph = glyphs[index],
+                                onClick = {
+                                    if (!glyphs[index].isPlaceholder) {
+                                        // 保存选中的字形数据到临时持有者
+                                        GlyphDataHolder.setGlyph(glyphs[index])
+                                        // 跳转到校对页，传递glyphId作为参数
+                                        navController.navigate("proofread/${glyphs[index].id}")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // 操作按钮
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onRetry,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("重新识别")
+                }
+                Button(
+                    onClick = onRetake,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Filled.CameraAlt, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("拍照识五行")
+                }
+            }
+
+            // 底部间距
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun WuxingBadge(
+    title: String,
+    value: Float,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Text(
+            text = "${value.toInt()}%",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun GlyphCard(
+    glyph: SegmentedGlyph,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .size(80.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(
+            width = 2.dp,
+            color = if (glyph.isPlaceholder) {
+                MaterialTheme.colorScheme.surfaceVariant
+            } else {
+                glyph.getWuXingColor()
+            }
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (glyph.isPlaceholder) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        Icons.Filled.BrokenImage,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "待扫描",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(glyph.bitmap),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = glyph.wuXing,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = glyph.getWuXingColor()
+                    )
+                    Text(
+                        text = glyph.getFormattedConfidence(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun PreviewView(
     originalImage: String?,
     correctedImage: String?,
@@ -329,7 +724,6 @@ private fun PreviewView(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // 预览图像
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -353,14 +747,12 @@ private fun PreviewView(
                 )
             }
 
-            // 基线可视化覆盖层
             BaselineOverlay(
                 baselines = baselines,
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        // 底部操作栏
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -418,10 +810,7 @@ private fun BaselineOverlay(
     baselines: List<Int>,
     modifier: Modifier = Modifier
 ) {
-    // 绘制基线参考线
     Box(modifier = modifier) {
-        // 实际实现中应使用Canvas绘制水平线
-        // 这里简化处理
     }
 }
 
@@ -479,14 +868,23 @@ private fun ErrorView(
     }
 }
 
-// UI State
- sealed class ScanUiState {
+sealed class ScanUiState {
     data object Initial : ScanUiState()
     data object Camera : ScanUiState()
     data object Gallery : ScanUiState()
     data class Processing(
         val progress: Float,
         val stage: String
+    ) : ScanUiState()
+    data class Segmenting(
+        val progress: Float,
+        val stage: String
+    ) : ScanUiState()
+    data class GridResult(
+        val originalBitmap: android.graphics.Bitmap,
+        val glyphs: List<SegmentedGlyph>,
+        val totalWuxing: FiveElementValues,
+        val isMock: Boolean
     ) : ScanUiState()
     data class Preview(
         val documentId: Long,

@@ -75,13 +75,17 @@ fun OutputScreen(
                 missingChars = missingChars
             )
             if (hasMissing) {
-                MissingGlyphBar(missingChars.size, missingChars)
+                MissingGlyphBar(
+                    missingChars.size, 
+                    missingChars,
+                    onFixClick = { navController.navigate("tab_scan") }
+                )
             }
             Spacer(Modifier.height(100.dp)) // 底部留出导出按钮空间
         }
         ExportFloatingBar(
             onExportImage = { showExporting = true },
-            onShare = { /* TODO: 系统分享 */ },
+            onShare = { navController.navigate("tab_library") },
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -200,7 +204,7 @@ private fun SectionLabel(text: String) {
 private fun MissingGlyphBar(
     missingCount: Int,
     missingChars: Set<Char>,
-    onFixClick: () -> Unit = {}
+    onFixClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
