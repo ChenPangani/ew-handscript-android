@@ -1,5 +1,7 @@
+cd /Users/iMac/Projects/ew-handscript-android
+cat > .gitignore << 'EOF'
 # ================================================================
-# 1. Android & Gradle 构建产物 (核心清理)
+# 1. Android & Gradle 构建产物（核心）
 # ================================================================
 *.apk
 *.ap_
@@ -10,32 +12,33 @@ bin/
 gen/
 out/
 build/
-builds/
 .gradle/
 gradle-app.setting
+local.properties
+.externalNativeBuild
+.cxx/
+captures/
+
+# 保留gradle wrapper（必须）
 !gradle-wrapper.jar
 !**/src/main/**/gradle-wrapper.jar
 !**/src/test/**/gradle-wrapper.jar
 
 # ================================================================
-# 2. IDE 与本地配置 (防冲突关键)
+# 2. IDE 配置（个人化，不共享）
 # ================================================================
-# 直接忽略整个 .idea 目录，防止不同版本的 AS 互相覆盖配置
 .idea/
 *.iml
 *.iws
 *.ipr
-local.properties
 
 # ================================================================
-# 3. AI 编辑器与智能体专属缓存 (新增！防膨胀关键)
+# 3. AI 编辑器缓存（防膨胀）
 # ================================================================
-# Cursor / Trae / VS Code 等基于 Web 技术的编辑器缓存
 .cursor/
 .cursorrules
 .trae/
 .vscode/
-# 其他可能的 AI 插件或对话历史存储目录
 .augment/
 .windsurf/
 
@@ -48,54 +51,68 @@ local.properties
 *.log
 *.hprof
 *.trace
-.externalNativeBuild
-.cxx/
+*.gs
+*.gcno
+*.gcda
 
-# Lint 检查结果
+# Lint & Crashlytics
 lint-results*.xml
 lint-results*.html
-
-# Crashlytics / Fabric
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# AndroidX Test
-*.gs
-*.gcno
-*.gcda
+# ================================================================
+# 5. Python 缓存（新增！Trae沙箱/算法脚本）
+# ================================================================
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.Python
+.env/
+.venv/
+pip-log.txt
+*.keras/          # TensorFlow Keras缓存
+.onnx/             # ONNX转换缓存
 
 # ================================================================
-# 5. 自定义备份与系统垃圾
+# 6. 训练数据与中间模型（体积大，可重建）
 # ================================================================
-# 你的专属备份隔离区
+# 所有训练数据目录（图片/手写稿）
+algorithm/ehs_tflite/data/
+!algorithm/ehs_tflite/data/.gitkeep   # 保留空目录标记（可选）
+
+# 所有中间模型（PyTorch/ONNX/SavedModel）
+algorithm/ehs_tflite/checkpoints/*.pth
+algorithm/ehs_tflite/checkpoints/*.onnx
+algorithm/ehs_tflite/checkpoints/saved_model/
+algorithm/ehs_tflite/checkpoints/*.keras
+
+# 算法输出目录
+docs/algorithm/ehs_algorithm/output/
+!docs/algorithm/ehs_algorithm/output/.gitkeep
+
+# ================================================================
+# 7. 系统垃圾
+# ================================================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ================================================================
+# 8. 个人备份（你的专属隔离区）
+# ================================================================
 _Archive/
 *.bak
 *_bak/
 data_bak/
+EOF
 
-# macOS & Windows 系统生成的隐藏文件
-.DS_Store
-Thumbs.db
-Desktop.ini
-# IDE配置（个人化，不共享）
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# 训练数据与中间模型（体积大，可重建）
-algorithm/ehs_tflite/checkpoints/*.pth
-algorithm/ehs_tflite/checkpoints/*.onnx
-algorithm/ehs_tflite/checkpoints/saved_model/
-algorithm/ehs_tflite/data/rows/
-docs/algorithm/ehs_algorithm/output/*.pth
-
-# 编译产物（必须忽略）
-*/build/
-.gradle/
-build/
-captures/
-.externalNativeBuild/
-.cxx/
+git add .gitignore
+git commit -m "fix: 优化.gitignore，完善Python缓存/训练数据/算法输出忽略规则"
+git push origin main
+# 保留 Android 资产目录中的模型文件（核心资产，不可删）
+!app/src/main/assets/models/
+!app/src/main/assets/models/*.tflite
