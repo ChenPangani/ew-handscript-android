@@ -29,6 +29,10 @@ import javax.inject.Singleton
  * 5. 过滤噪声和非文字区域
  *
  * @author HandCraft Font Team
+ * 
+ * TODO-V2: 光影腐蚀处理（夜晚低光场景二值化阈值自适应）
+ * TODO-V2: 印刷体/格式线过滤（需 print_filter.tflite 模型）
+ * TODO-V2: 表格框线排除（霍夫直线检测 + ROI 过滤）
  */
 @Singleton
 class GlyphSegmentationEngine @Inject constructor() {
@@ -464,8 +468,8 @@ class GlyphSegmentationEngine @Inject constructor() {
         return components.map { component ->
             val box = component.boundingBox
 
-            // 添加少量边距
-            val margin = 4
+            // 缩小边距（从4px减至2px，减少黑色留白边框）
+            val margin = 2
             val x = max(0, box.left - margin)
             val y = max(0, box.top - margin)
             val w = min(sourceMat.cols() - x, box.width() + margin * 2)

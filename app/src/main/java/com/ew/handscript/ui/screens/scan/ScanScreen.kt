@@ -233,7 +233,16 @@ fun ScanScreen(
                     totalWuxing = state.totalWuxing,
                     isMock = state.isMock,
                     onRetake = { viewModel.retake() },
-                    onRetry = { viewModel.retry() }
+                    onRetry = { 
+                        // 重新执行切字算法，而不是打开相册
+                        state.originalBitmap?.let { bitmap ->
+                            val tempFile = File(context.filesDir, "retry_image_${System.currentTimeMillis()}.jpg")
+                            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, tempFile.outputStream())
+                            viewModel.processSelectedImages(listOf(tempFile.absolutePath))
+                        } ?: run {
+                            viewModel.retry()
+                        }
+                    }
                 )
                 is ScanUiState.Preview -> PreviewView(
                     originalImage = state.originalImage,

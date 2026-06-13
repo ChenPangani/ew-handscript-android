@@ -16,12 +16,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavHostController
 import com.ew.handscript.ui.navigation.BottomTab
+import com.ew.handscript.ui.navigation.SubRoute
 import com.ew.handscript.model.LibraryLevel
 import kotlinx.coroutines.flow.collectLatest
 
@@ -40,6 +44,20 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Bug 1修复：页面恢复时刷新计数
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshStats()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -275,7 +293,7 @@ private fun QuickAccessGrid(navController: NavHostController) {
         QuickAccessItem(
             title = "我的字库",
             icon = Icons.Filled.FontDownload,
-            route = BottomTab.Library.route
+            route = "library"  // 使用新添加的字库列表路由
         ),
         QuickAccessItem(
             title = "万象法相",
@@ -291,7 +309,13 @@ private fun QuickAccessGrid(navController: NavHostController) {
         items.forEach { item ->
             QuickAccessCard(
                 item = item,
-                onClick = { navController.navigate(item.route) },
+                onClick = { 
+                    navController.navigate(item.route) {
+                        // Bug 2修复：确保导航到字库Tab时正确跳转
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 modifier = Modifier.weight(1f)
             )
         }

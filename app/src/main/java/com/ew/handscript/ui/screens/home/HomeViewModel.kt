@@ -31,8 +31,8 @@ class HomeViewModel @Inject constructor(
     private fun loadLibraryStats() {
         viewModelScope.launch {
             try {
-                val uniqueCount = glyphDao.getUniqueVerifiedCharCount()
                 val totalCount = glyphDao.getTotalGlyphCount()
+                val uniqueCount = glyphDao.getUniqueVerifiedCharCount()
                 val level = GlyphModel.getLibraryLevel(uniqueCount)
                 val targetCount = getNextLevelTarget(level)
                 val progress = if (targetCount > 0) {
@@ -41,17 +41,26 @@ class HomeViewModel @Inject constructor(
 
                 _uiState.update {
                     it.copy(
-                        verifiedCount = uniqueCount,
+                        verifiedCount = totalCount,  // 使用总入库数显示
                         targetCount = targetCount,
                         libraryLevel = level,
                         progress = progress,
                         recentDocuments = emptyList() // TODO: 加载最近文档
                     )
                 }
+                
+                Timber.d("字库统计已刷新：总入库数=$totalCount, 去重字符数=$uniqueCount")
             } catch (e: Exception) {
                 Timber.e(e, "加载字库统计失败")
             }
         }
+    }
+    
+    /**
+     * 手动刷新统计数据（用于入库后回调）
+     */
+    fun refreshStats() {
+        loadLibraryStats()
     }
 
     private fun getNextLevelTarget(currentLevel: LibraryLevel): Int {

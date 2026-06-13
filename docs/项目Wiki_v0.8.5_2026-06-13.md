@@ -62,6 +62,7 @@ Layer4: 人机协同校对（消消乐交互）
   - [x] **扫描→九宫格切字流程（OpenCV连通域分割，真机验证通过）**
   - [x] **九宫格点击→ProofreadSingleScreen跳转（真机验证通过）**
   - [x] **相机权限修复（运行时RequestPermission，真机验证通过）**
+  - [x] 相机路径/密集小字"为已知问题
   - [ ] PaddleOCR集成与行检测实测
   - [ ] OpenCV局部分割实测（L3层，ROI内连通域+分水岭）
   - [ ] 字体生成流水线（Agent-B Python脚本）与Android端集成

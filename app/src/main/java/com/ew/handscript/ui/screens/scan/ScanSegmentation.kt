@@ -676,7 +676,8 @@ data class SegmentedGlyph(
     val bitmap: Bitmap,
     val wuXing: String,
     val confidence: Float,
-    val isPlaceholder: Boolean = false
+    val isPlaceholder: Boolean = false,
+    val index: Int? = null  // 字形在九宫格中的索引位置
 ) {
     fun getWuXingColor(): androidx.compose.ui.graphics.Color {
         return when (wuXing) {

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.ew.handscript.ui.screens.home.HomeScreen
+import com.ew.handscript.ui.screens.library.LibraryScreen
 import com.ew.handscript.ui.screens.scan.ScanScreen
 import com.ew.handscript.ui.screens.proofread.ProofreadScreen_Phase3
 import com.ew.handscript.ui.screens.proofread.ProofreadSingleScreen
@@ -197,6 +198,10 @@ private fun AppNavHost(
         composable(SubRoute.Proofread.route) { backStackEntry ->
             val glyphId = backStackEntry.arguments?.getString("glyphId") ?: ""
             ProofreadSingleScreen(navController = navController, glyphId = glyphId)
+        }
+        // 子页面：字库列表（从首页"我的字库"按钮跳转）
+        composable("library") {
+            LibraryScreen(navController = navController)
         }
     }
 }
